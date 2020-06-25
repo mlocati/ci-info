@@ -1,0 +1,38 @@
+name: Offline Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  test:
+    strategy:
+      matrix:
+        operating-system:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+        php-versions:
+          - '7.2'
+          - '7.3'
+          - '7.4'
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+    runs-on: ${{ matrix.operating-system }}
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: 'mbstring, openssl, zip'
+          tools: 'composer:v1'
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: composer install --no-progress --no-suggest --optimize-autoloader --no-ansi --no-interaction
+      - name: Perform tests
+        run: composer run test
