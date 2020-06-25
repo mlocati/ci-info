@@ -1,0 +1,62 @@
+{
+    "name": "mlocati/ci-info",
+    "description": "Get informations about the current continuous integration environment",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/mlocati/ci-info",
+    "authors": [
+        {
+            "name": "Michele Locati",
+            "email": "michele@locati.it",
+            "homepage": "https://github.com/mlocati",
+            "role": "author"
+        }
+    ],
+    "keywords": [
+        "ci",
+        "continuous",
+        "integrations",
+        "appveyor",
+        "github",
+        "actions",
+        "travis",
+        "travisci",
+        "pull",
+        "request",
+        "info"
+    ],
+    "require": {
+        "php": ">=7.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "CIInfo\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CIInfo\\Test\\": "test/src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "scripts": {
+        "test": "phpunit"
+    },
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/mlocati"
+        },
+        {
+            "type": "other",
+            "url": "https://paypal.me/mlocati"
+        }
+    ]
+}
