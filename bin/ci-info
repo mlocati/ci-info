@@ -1,0 +1,238 @@
+#!/usr/bin/env php
+<?php
+
+use CIInfo\DriverList;
+use CIInfo\State;
+use CIInfo\StateFactory;
+
+function run(): void
+{
+    set_error_handler(
+        static function ($errorCode, $errorDescriptiom, $file = '', $line = null): void {
+            $message = trim((string) $errorDescriptiom);
+            if ($message === '') {
+                $message = "Unknown error (code: {$errorCode}).";
+            }
+            $file = (string) $file;
+            if ($file !== '') {
+                $message .= "\nFile: {$file}";
+                $line = (int) $line;
+                if ($line !== 0) {
+                    $message .= "\nLine: {$line}";
+                }
+            }
+            exitScript(false, $message);
+        },
+        -1
+    );
+    configureAutoload();
+    if (isHelp()) {
+        exitScript(true);
+    }
+    $command = getSelectedCommand();
+    try {
+        $command();
+        exitScript(false);
+    } catch (Throwable $x) {
+        exitScript(false, $x->getMessage() ?: get_class($x));
+    }
+}
+
+function exitScript(bool $showSyntax, string $error = ''): void
+{
+    if (isQuiet() === false) {
+        $stream = $error === '' ? STDOUT : STDERR;
+        if ($error !== '') {
+            fwrite($stream, rtrim($error) . "\n");
+        }
+        if ($showSyntax && isAutoloadConfigured()) {
+            if ($error !== '') {
+                fwrite($stream, "\n");
+            }
+            $arguments = getArgv(false);
+            $scriptName = $arguments ? $arguments[0] : basename(__FILE__);
+            $commandTexts = [];
+            foreach (getAvailableCommands() as $command => $commandData) {
+                $commandTexts[] = "# {$command}\n{$commandData['description']}";
+            }
+            $commandTexts = implode("\n\n", $commandTexts);
+            fwrite(
+                $stream,
+                <<<EOT
+Syntax:
+  {$scriptName} [-q|--quiet] [-h|--help] <command>
+
+Options:
+-q|--quiet: turn off displaying errors
+-h|--help : show this syntax message and quits
+
+Allowed values for <command> are:
+{$commandTexts}
+
+Exit code:
+0: success
+1: failure
+ 
+EOT
+            );
+        }
+    }
+    exit($error === '' ? 0 : 1);
+}
+
+function getArgv(bool $stripScriptPath): array
+{
+    global $argv;
+    if (!isset($argv)) {
+        exitScript(false, "Unable to access the Command line options.\nYou may need to set the register_argc_argv php.ini configuration key to 1.");
+    }
+    if ($stripScriptPath) {
+        $copy = $argv;
+        array_shift($copy);
+
+        return $copy;
+    }
+
+    return $argv;
+}
+
+function isQuietOption(string $arg): bool
+{
+    return $arg === '--quiet' || preg_match('/^-[A-Za-z0-9]*q/', $arg);
+}
+
+function isHelpOption(string $arg): bool
+{
+    return $arg === '--help' || preg_match('/^-[A-Za-z0-9]*h/', $arg);
+}
+
+function isQuiet(): bool
+{
+    foreach (getArgv(true) as $arg) {
+        if (isQuietOption($arg)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+function isHelp(): bool
+{
+    foreach (getArgv(true) as $arg) {
+        if (isHelpOption($arg)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function isAutoloadConfigured(): bool
+{
+    return class_exists(DriverList::class);
+}
+
+function configureAutoload(): void
+{
+    if (isAutoloadConfigured()) {
+        return;
+    }
+    foreach ([
+        __DIR__ . '/../../../autoload.php',
+        __DIR__ . '/../vendor/autoload.php',
+    ] as $autoload) {
+        set_error_handler(static function (): void {}, -1);
+        $exists = is_file($autoload);
+        restore_error_handler();
+        if ($exists) {
+            require_once $autoload;
+            break;
+        }
+    }
+    if (!isAutoloadConfigured()) {
+        exitScript(false, 'Unable to locate the autoload.php file.');
+    }
+}
+
+function getAvailableCommands(): array
+{
+    static $commands;
+    if (!isset($commands)) {
+        $driverList = new DriverList();
+        $driverTexts = [];
+        foreach ($driverList->getDrivers() as $driver) {
+            $driverTexts[] = "{$driver->getHandle()}: {$driver->getName()}";
+        }
+        sort($driverTexts);
+        $driverTexts = '- ' . implode("\n- ", $driverTexts);
+        $stateValues = [];
+        $stateClass = new ReflectionClass(State::class);
+        foreach ($stateClass->getReflectionConstants() as $constant) {
+            // @var ReflectionClassConstant $constant
+            if (!$constant->isPublic()) {
+                continue;
+            }
+            if (strpos($constant->getName(), 'EVENT_') !== 0) {
+                continue;
+            }
+            $constantValue = $constant->getValue();
+            if (!is_string($constantValue)) {
+                continue;
+            }
+            $stateValues[] = $constantValue;
+        }
+        sort($stateValues);
+        $stateValues = '- ' . implode("\n- ", $stateValues);
+        $commands = [
+            'driver' => [
+                'description' => "Print the handle identifying the current environment.\nPossible results are:\n{$driverTexts}",
+                'exec' => static function (): void {
+                    $driverList = new DriverList();
+                    $driver = $driverList->getDriverForEnvironment();
+                    if ($driver === null) {
+                        throw new RuntimeException('Current CI environment not detected.');
+                    }
+                    echo $driver->getHandle(), "\n";
+                },
+            ],
+            'event' => [
+                'description' => "Print the current operation type.\nPossible results are:\n{$stateValues}",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    echo $state->getEvent(), "\n";
+                },
+            ],
+        ];
+    }
+
+    return $commands;
+}
+
+function getSelectedCommand(): Closure
+{
+    $commands = getAvailableCommands();
+    $result = null;
+    foreach (getArgv(true) as $arg) {
+        if ($arg === '') {
+            continue;
+        }
+        if (isHelpOption($arg) || isQuietOption($arg)) {
+            continue;
+        }
+        if (!isset($commands[$arg])) {
+            exitScript(true, $arg[0] === '-' ? "Unrecognized option: '{$arg}'." : "Unrecognized argument: '{$arg}'.");
+        }
+        if ($result !== null) {
+            exitScript(true, 'Only one command can be specified.');
+        }
+        $result = $commands[$arg]['exec'];
+    }
+    if ($result === null) {
+        exitScript(true, 'Missing command to be executed.');
+    }
+
+    return $result;
+}
+
+run();
