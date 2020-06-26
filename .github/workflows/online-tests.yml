@@ -1,0 +1,110 @@
+name: Online Tests
+
+on:
+  create:
+  pull_request:
+  push:
+   schedule:
+    - cron:  '0 8 * * *'
+  repository_dispatch:
+
+jobs:
+  test_posix:
+    strategy:
+      matrix:
+        operating-system:
+          - macos-latest
+          - ubuntu-latest
+        php-versions:
+          - '7.2'
+          - '7.3'
+          - '7.4'
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+    runs-on: ${{ matrix.operating-system }}
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          tools: 'composer:v1'
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
+      - name: Configure environment
+        run: |
+          set -o errexit
+      - name: Check engine
+        run: |
+          test "$(./bin/ci-info driver)" = 'github-actions'
+      - name: Check tag creation
+        if: github.event_name == 'create'
+        run: |
+          test "$(./bin/ci-info event)" = 'tag'
+      - name: Check pull_request events
+        if: github.event_name == 'pull_request'
+        run: |
+          test "$(./bin/ci-info event)" = 'pull-request'
+      - name: Check push events
+        if: github.event_name == 'push'
+        run: |
+          test "$(./bin/ci-info event)" = 'push'
+      - name: Check scheduled events
+        if: github.event_name == 'schedule'
+        run: |
+          test "$(./bin/ci-info event)" = 'scheduled'
+      - name: Check repository_dispatch events
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          test "$(./bin/ci-info event)" = 'manual'
+  test_windows:
+    strategy:
+      matrix:
+        operating-system:
+          - windows-latest
+        php-versions:
+          - '7.2'
+          - '7.3'
+          - '7.4'
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+    runs-on: ${{ matrix.operating-system }}
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          tools: 'composer:v1'
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
+      - name: Configure environment
+        run: |
+          $ErrorActionPreference = 'stop'
+      - name: Check engine
+        run: |
+          if ("$(.\bin\ci-info driver)" -ne 'github-actions') { throw }
+      - name: Check tag creation
+        if: github.event_name == 'create'
+        run: |
+          if ("$(.\bin\ci-info event)" -ne 'tag') { throw }
+      - name: Check pull_request events
+        if: github.event_name == 'pull_request'
+        run: |
+          if ("$(.\bin\ci-info event)" -ne 'pull-request') { throw }
+      - name: Check push events
+        if: github.event_name == 'push'
+        run: |
+          if ("$(.\bin\ci-info event)" -ne 'push') { throw }
+      - name: Check scheduled events
+        if: github.event_name == 'schedule'
+        run: |
+          if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw }
+      - name: Check repository_dispatch events
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          if ("$(.\bin\ci-info event)" -ne 'manual') { throw }
