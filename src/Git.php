@@ -38,7 +38,7 @@ class Git
     {
         $error = null;
         set_error_handler(
-            function ($errno, $errstr) use (&$error) {
+            function ($errno, $errstr) use (&$error): void {
                 $error = trim((string) $errstr);
                 if ($error === '') {
                     $error = "Unknown error (code: {$errno})";

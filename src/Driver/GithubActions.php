@@ -100,7 +100,7 @@ class GithubActions implements Driver
         $baseCommitSha1 = '';
         $context = $env->get('GITHUB_CONTEXT');
         if ($context !== '') {
-            set_error_handler(function () {}, -1);
+            set_error_handler(function (): void {}, -1);
             $context = json_decode($context, true);
             restore_error_handler();
             if (is_array($context)) {
