@@ -36,6 +36,16 @@ class GithubActions implements Driver
     /**
      * {@inheritdoc}
      *
+     * @see \CIInfo\Driver::getName()
+     */
+    public function getName(): string
+    {
+        return 'GitHub Actions';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @see \CIInfo\Driver::getProjectRootDir()
      */
     public function getProjectRootDir(Env $env): string

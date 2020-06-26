@@ -36,6 +36,16 @@ class AppVeyor implements Driver
     /**
      * {@inheritdoc}
      *
+     * @see \CIInfo\Driver::getName()
+     */
+    public function getName(): string
+    {
+        return 'AppVeyor';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @see \CIInfo\Driver::isCurrent()
      */
     public function isCurrent(Env $env): bool
