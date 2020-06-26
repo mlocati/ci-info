@@ -1,0 +1,46 @@
+init:
+  - ps: "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 + [Net.SecurityProtocolType]::Tls11 + [Net.SecurityProtocolType]::Tls"
+  - ps: Update-Module -Name PowerShellGet -Force -ErrorAction SilentlyContinue
+  - ps: Install-Module -Name PhpManager -Repository PSGallery -Scope AllUsers -Force
+  - ps: Install-Php -Version '7.2' -Architecture x64 -ThreadSafe $false -Path C:\PHP -TimeZone UTC -AddToPath System -InitialPhpIni Production -InstallVC -Force
+  - ps: Enable-PhpExtension -Path C:\PHP -Extension mbstring,openssl
+  - ps: Install-Composer -Path C:\Composer -PhpPath C:\PHP -Scope System -NoCache
+install:
+  - composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
+build: 'off'
+test_script:
+  - ps: $ErrorActionPreference = "Stop";
+  - ps: |
+        if ($Env:APPVEYOR_REPO_TAG -eq 'true') {
+            $type='tag'
+        } elseif ($Env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT) {
+            $type='pull-request'
+        } elseif ($Env:APPVEYOR_SCHEDULED_BUILD) {
+            $type='scheduled'
+        } elseif ($Env:APPVEYOR_FORCED_BUILD) {
+            $type='manual'
+        } else {
+            $type='push'
+        }
+  - ps: 'Write-Host "Expected type: $type"'
+  - ps: if ("$(.\bin\ci-info driver)" -ne 'appveyor') { throw 'Wrong driver' }
+  - ps: |
+        if ($type -eq 'tag') {
+            if ("$(.\bin\ci-info event)" -ne 'tag') { throw "Expected $type" }
+        }
+  - ps: |
+        if ($type -eq 'pull-request') {
+            if ("$(.\bin\ci-info event)" -ne 'pull-request') { throw "Expected $type" }
+        }
+  - ps: |
+        if ($type -eq 'scheduled') {
+            if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw "Expected $type" }
+        }
+  - ps: |
+        if ($type -eq 'manual') {
+            if ("$(.\bin\ci-info event)" -ne 'manual') { throw "Expected $type" }
+        }
+  - ps: |
+        if ($type -eq 'push') {
+            if ("$(.\bin\ci-info event)" -ne 'push') { throw "Expected $type" }
+        }
