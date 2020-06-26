@@ -1,0 +1,28 @@
+notifications:
+  email: false
+language: php
+php: '7.2'
+before_install:
+  - phpenv config-rm xdebug.ini || true
+install:
+  - composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
+matrix:
+  fast_finish: true
+  include:
+    - name: Test detected driver
+      script: test "$(./bin/ci-info driver)" = 'travis-ci'
+    - name: Test push events
+      if: type = push AND tag is blank
+      script: test "$(./bin/ci-info event)" = 'push'
+    - name: Test tag events
+      if: tag is present
+      script: test "$(./bin/ci-info event)" = 'tag'
+    - name: Test pull request events
+      if: type = pull_request
+      script: test "$(./bin/ci-info event)" = 'pull-request'
+    - name: Test API events
+      if: type = api
+      script: test "$(./bin/ci-info event)" = 'manual'
+    - name: Test cron events
+      if: type = cron
+      script: test "$(./bin/ci-info event)" = 'scheduled'
