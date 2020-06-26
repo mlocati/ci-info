@@ -204,6 +204,17 @@ function getAvailableCommands(): array
                     echo $state->getEvent(), "\n";
                 },
             ],
+            'pr:range' => [
+                'description' => "Print the commit range of pull request events (example: 123456abcded...abcded123456)",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_PULLREQUEST) {
+                        throw new RuntimeException('The current job is not for a pull request.');
+                    }
+                    echo $state->getCommitRange(), "\n";
+                },
+            ],
         ];
     }
 

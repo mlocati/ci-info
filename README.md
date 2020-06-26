@@ -55,11 +55,11 @@ try {
 
 switch ($state->getEvent()) {
     case \CIInfo\State::EVENT_PUSH:
-        // $state is an instance of the \CIInfo\State\Push class
+        // $state is an instance of the \CIInfo\State\Push (or its \CIInfo\State\PushWithoutBaseCommit subclass) class
         echo "We are in a build triggered by a push.\n";
 		break;
     case \CIInfo\State::EVENT_PULLREQUEST:
-        // $state is an instance of the \CIInfo\State\PullRequest (or its \CIInfo\State\PushWithoutBaseCommit subclass) class  
+        // $state is an instance of the \CIInfo\State\PullRequest class  
         echo "We are in a build triggered by a pull request.\n";
 		break;
     case \CIInfo\State::EVENT_TAG:

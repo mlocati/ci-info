@@ -47,6 +47,9 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           test "$(./bin/ci-info event)" = 'pull-request'
+          range="$(./bin/ci-info pr:range)"
+          echo "range='$range'"
+          php -r 'exit(preg_match("/^[0-9a-f]{6,40}\.\.\.[0-9a-f]{6,40}$/i", $argv[1]) ? 0 : 1);' "$range"
       - name: Check push events
         if: github.event_name == 'push'
         run: |
@@ -96,6 +99,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           if ("$(.\bin\ci-info event)" -ne 'pull-request') { throw }
+          $range="$(.\bin\ci-info pr:range)"
+          if (-not($range -match '^[a-f0-9]{6,40}\.\.\.[a-f0-9]{6,40}$')) { throw "Invalid range: $range" }
       - name: Check push events
         if: github.event_name == 'push'
         run: |

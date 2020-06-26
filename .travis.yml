@@ -19,7 +19,11 @@ matrix:
       script: test "$(./bin/ci-info event)" = 'tag'
     - name: Test pull request events
       if: type = pull_request
-      script: test "$(./bin/ci-info event)" = 'pull-request'
+      script: |
+              test "$(./bin/ci-info event)" = 'pull-request'
+              range="$(./bin/ci-info pr:range)"
+              echo "range='$range'"
+              php -r 'exit(preg_match("/^[0-9a-f]{6,40}\.\.\.[0-9a-f]{6,40}$/i", $argv[1]) ? 0 : 1);' "$range"
     - name: Test API events
       if: type = api
       script: test "$(./bin/ci-info event)" = 'manual'
