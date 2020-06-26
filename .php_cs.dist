@@ -441,7 +441,6 @@ return PhpCsFixer\Config::create()
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
-            ->name(['*.php', 'ci-info*'])
             ->in(__DIR__)
         )
 ;
