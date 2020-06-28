@@ -36,6 +36,16 @@ class GithubActions implements Driver
     /**
      * {@inheritdoc}
      *
+     * @see \CIInfo\Driver::getName()
+     */
+    public function getName(): string
+    {
+        return 'GitHub Actions';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @see \CIInfo\Driver::getProjectRootDir()
      */
     public function getProjectRootDir(Env $env): string
@@ -100,7 +110,7 @@ class GithubActions implements Driver
         $baseCommitSha1 = '';
         $context = $env->get('GITHUB_CONTEXT');
         if ($context !== '') {
-            set_error_handler(function () {}, -1);
+            set_error_handler(function (): void {}, -1);
             $context = json_decode($context, true);
             restore_error_handler();
             if (is_array($context)) {

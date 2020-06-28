@@ -15,6 +15,11 @@ interface Driver
     public function getHandle(): string;
 
     /**
+     * Get the name of the driver.
+     */
+    public function getName(): string;
+
+    /**
      * Is this driver applicable for the passed environment variables?
      */
     public function isCurrent(Env $env): bool;

@@ -37,6 +37,16 @@ class TravisCI implements Driver
     /**
      * {@inheritdoc}
      *
+     * @see \CIInfo\Driver::getName()
+     */
+    public function getName(): string
+    {
+        return 'Travis CI';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @see \CIInfo\Driver::isCurrent()
      */
     public function isCurrent(Env $env): bool

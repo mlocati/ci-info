@@ -127,8 +127,8 @@ EOT
         if ($state1->getMergeSha1() !== $state2->getMergeSha1()) {
             throw new InvalidPullRequestStateException(
                 <<<EOT
-Merge SHA-1 with method #1: {$state1->getHeadSha1()}
-Merge SHA-1 with method #2: {$state2->getHeadSha1()}
+Merge SHA-1 with method #1: {$state1->getMergeSha1()}
+Merge SHA-1 with method #2: {$state2->getMergeSha1()}
 EOT
             );
         }
