@@ -1,6 +1,6 @@
 # CI-Info
 
-This package lets you get details about the current Continuous Integration enviromnent.
+This package lets you get details about the current Continuous Integration environment.
 
 Supported environments are:
 
