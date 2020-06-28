@@ -37,7 +37,7 @@ $driver = (new \CIInfo\DriverList())->getDriverForEnvironment();
 if ($driver === null) {
     // CI environment Not detected
 } else {
-	if ($ci->getHandle() === \CIInfo\Driver\GithubActions::HANDLE) {
+    if ($ci->getHandle() === \CIInfo\Driver\GithubActions::HANDLE) {
         // We are running in a GitHub Actions build
     }
 }
@@ -57,23 +57,23 @@ switch ($state->getEvent()) {
     case \CIInfo\State::EVENT_PUSH:
         // $state is an instance of the \CIInfo\State\Push (or its \CIInfo\State\PushWithoutBaseCommit subclass) class
         echo "We are in a build triggered by a push.\n";
-		break;
+        break;
     case \CIInfo\State::EVENT_PULLREQUEST:
         // $state is an instance of the \CIInfo\State\PullRequest class  
         echo "We are in a build triggered by a pull request.\n";
-		break;
+        break;
     case \CIInfo\State::EVENT_TAG:
         // $state is an instance of the \CIInfo\State\Tag class
         echo "We are in a build triggered by the creation of a tag.\n";
-		break;
+        break;
     case \CIInfo\State::EVENT_SCHEDULED:
         // $state is an instance of the \CIInfo\State\Scheduled class
         echo "We are in a build triggered by a scheduled job.\n";
-		break;
+        break;
     case \CIInfo\State::EVENT_MANUAL:
         // $state is an instance of the \CIInfo\State\Manual class
         echo "We are in a build triggered manually (via APIs, manual builds, repository_dispatch events, ...).\n";
-		break;
+        break;
 }
 ```
 
