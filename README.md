@@ -2,7 +2,7 @@
 
 This package lets you get details about the current Continuous Integration enviromnent.
 
-Supported enviromnents are:
+Supported environments are:
 
 - AppVeyor
 - GitHub Actions
@@ -22,7 +22,7 @@ You can install this package in two ways:
 
 ### Setup
 
-First of all, __if you don't Composer__, you need to include the `autoload.php` file you can find in the root directory of this project:
+First of all, __if you don't use Composer__, you need to include the `autoload.php` file you can find in the root directory of this project:
 
 ```php
 require_once 'path/to/autoload.php';
