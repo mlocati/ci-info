@@ -28,6 +28,7 @@ test_script:
         if ($type -eq 'tag') {
             if ("$(.\bin\ci-info event)" -ne 'tag') { throw "Expected $type" }
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
+            if (-not("$(.\bin\ci-info tag:name)" -ceq $Env:APPVEYOR_REPO_TAG_NAME)) { throw }
         }
   - ps: |
         if ($type -eq 'pull-request') {

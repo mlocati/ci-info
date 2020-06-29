@@ -23,6 +23,7 @@ matrix:
       script: |
         test "$(./bin/ci-info event)" = 'tag'
         test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
+        test "$(./bin/ci-info tag:name)" = "$TRAVIS_TAG"
     - name: Test pull request events
       if: type = pull_request
       script: |

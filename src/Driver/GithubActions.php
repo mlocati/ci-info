@@ -14,7 +14,7 @@ use CIInfo\State;
  */
 class GithubActions implements Driver
 {
-    use Traits\PullrequestStateTrait;
+    use Traits\PullRequestStateTrait;
 
     /**
      * The GitHub Actions driver handle.

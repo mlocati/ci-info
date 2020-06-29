@@ -14,7 +14,7 @@ use CIInfo\State;
  */
 class AppVeyor implements Driver
 {
-    use Traits\PullrequestStateTrait;
+    use Traits\PullRequestStateTrait;
 
     /**
      * The AppVeyor driver handle.

@@ -223,6 +223,17 @@ function getAvailableCommands(): array
                     echo $state->getCommitRange(), "\n";
                 },
             ],
+            'tag:name' => [
+                'description' => "Print the tag name (for tag jobs)",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_TAG) {
+                        throw new RuntimeException('The current job is not for a tag.');
+                    }
+                    echo $state->getTag(), "\n";
+                },
+            ],
         ];
     }
 

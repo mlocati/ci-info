@@ -10,7 +10,7 @@ use CIInfo\Exception\InvalidPullRequestStateException;
 use CIInfo\Git;
 use CIInfo\State\PullRequest;
 
-trait PullrequestStateTrait
+trait PullRequestStateTrait
 {
     /**
      * @throws \CIInfo\Exception\MissingEnvironmentVariableException if a required environment variable is missing or empty
