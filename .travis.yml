@@ -32,6 +32,15 @@ matrix:
       script: |
         test "$(./bin/ci-info event)" = 'push'
         test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
+        test "$(./bin/ci-info push:branch)" = "$TRAVIS_BRANCH"
+        prevSha1="$(./bin/ci-info push:prev:sha1)"
+        php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$prevSha1"
+        range="$(./bin/ci-info push:range)"
+        php -r 'exit(preg_match("/^[0-9a-f]{40}\.\.\.[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$range"
+        if test -n "${TRAVIS_COMMIT_RANGE:-}"; then
+          test "$prevSha1...$TRAVIS_COMMIT" = "$TRAVIS_COMMIT_RANGE"
+          test "$range" = "$TRAVIS_COMMIT_RANGE"
+        fi
     - name: Test tag events
       if: tag is present
       script: |

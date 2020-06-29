@@ -34,6 +34,15 @@ test_script:
         if ($type -eq 'push') {
             if ("$(.\bin\ci-info event)" -ne 'push') { throw "Expected $type" }
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
+            if ("$(.\bin\ci-info push:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
+            $exception=$null
+            try { .\bin\ci-info push:prev:sha1 2>&1} catch { $exception=$_ }
+            if ($null -eq $exception) { throw 'Expected exception' }
+            if (-not($exception.Exception.Message -like '*provide a way to detect the previous commit of a push event*')) { throw $exception }
+            $exception=$null
+            try { .\bin\ci-info push:range 2>&1} catch { $exception=$_ }
+            if ($null -eq $exception) { throw 'Expected exception' }
+            if (-not($exception.Exception.Message -like '*provide a way to detect the previous commit of a push event*')) { throw $exception }
         }
   - ps: |
         if ($type -eq 'tag') {
