@@ -140,8 +140,20 @@ Possible results are:
 # sha1
 Print the SHA-1 of the most recent commit (it's the merge commit in case of pull requests)
 
+# pr:base:branch
+Print the target branch of a pull request
+
+# pr:base:sha1
+Print the SHA-1 of the last commit in the target branch
+
+# pr:head:sha1
+Print the SHA-1 of the last commit in the pull request branch
+
 # pr:range
 Print the commit range of pull request events (example: 123456abcded...abcded123456)
+
+# tag:name
+Print the tag name (for tag jobs)
 
 Exit code:
 0: success
