@@ -6,6 +6,8 @@ before_install:
   - phpenv config-rm xdebug.ini || true
 install:
   - composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
+after_failure:
+  - set | grep -E '^(TRAVIS|CI)'
 matrix:
   fast_finish: true
   include:
