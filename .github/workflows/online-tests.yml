@@ -44,10 +44,12 @@ jobs:
         if: github.event_name == 'create'
         run: |
           test "$(./bin/ci-info event)" = 'tag'
+          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
       - name: Check pull_request events
         if: github.event_name == 'pull_request'
         run: |
           test "$(./bin/ci-info event)" = 'pull-request'
+          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
           range="$(./bin/ci-info pr:range)"
           echo "range='$range'"
           php -r 'exit(preg_match("/^[0-9a-f]{40}\.\.\.[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$range"
@@ -55,14 +57,17 @@ jobs:
         if: github.event_name == 'push'
         run: |
           test "$(./bin/ci-info event)" = 'push'
+          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
       - name: Check scheduled events
         if: github.event_name == 'schedule'
         run: |
           test "$(./bin/ci-info event)" = 'scheduled'
+          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
         run: |
           test "$(./bin/ci-info event)" = 'manual'
+          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
   test_windows:
     strategy:
       matrix:
@@ -96,21 +101,26 @@ jobs:
         if: github.event_name == 'create'
         run: |
           if ("$(.\bin\ci-info event)" -ne 'tag') { throw }
+          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
       - name: Check pull_request events
         if: github.event_name == 'pull_request'
         run: |
           if ("$(.\bin\ci-info event)" -ne 'pull-request') { throw }
+          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
           $range="$(.\bin\ci-info pr:range)"
           if (-not($range -match '^[a-f0-9]{40}\.\.\.[a-f0-9]{40}$')) { throw "Invalid range: $range" }
       - name: Check push events
         if: github.event_name == 'push'
         run: |
           if ("$(.\bin\ci-info event)" -ne 'push') { throw }
+          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
       - name: Check scheduled events
         if: github.event_name == 'schedule'
         run: |
           if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw }
+          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
         run: |
           if ("$(.\bin\ci-info event)" -ne 'manual') { throw }
+          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
