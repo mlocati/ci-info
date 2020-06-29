@@ -27,13 +27,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          tools: 'composer:v1'
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Install dependencies
-        run: composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
       - name: Configure environment
         run: |
           set -o errexit
@@ -91,13 +88,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          tools: 'composer:v1'
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Install dependencies
-        run: composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
       - name: Configure environment
         run: |
           $ErrorActionPreference = 'stop'

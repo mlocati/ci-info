@@ -3,10 +3,6 @@ init:
   - ps: Update-Module -Name PowerShellGet -Force -ErrorAction SilentlyContinue
   - ps: Install-Module -Name PhpManager -Repository PSGallery -Scope AllUsers -Force
   - ps: Install-Php -Version '7.2' -Architecture x64 -ThreadSafe $false -Path C:\PHP -TimeZone UTC -AddToPath System -InitialPhpIni Production -InstallVC -Force
-  - ps: Enable-PhpExtension -Path C:\PHP -Extension mbstring,openssl
-  - ps: Install-Composer -Path C:\Composer -PhpPath C:\PHP -Scope System -NoCache
-install:
-  - composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
 build: 'off'
 test_script:
   - ps: $ErrorActionPreference = "Stop";
