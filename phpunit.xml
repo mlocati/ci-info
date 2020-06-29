@@ -5,8 +5,8 @@
     bootstrap="./test/bootstrap.php"
     backupGlobals="false"
     convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
 >
     <testsuites>
         <testsuite name="Tests">
