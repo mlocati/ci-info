@@ -84,7 +84,7 @@ class TravisCI implements Driver
                     $env->getNotEmpty('TRAVIS_BRANCH'),
                     $sha1,
                     $env->getNotEmpty('TRAVIS_PULL_REQUEST_SHA'),
-                    $env->getNotEmpty('TRAVIS_COMMIT_RANGE')
+                    $env->get('TRAVIS_COMMIT_RANGE', null) ?: null,
                 );
             case 'push':
                 return $this->createPushState($env);
