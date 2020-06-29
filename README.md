@@ -137,6 +137,9 @@ Possible results are:
 - scheduled
 - tag
 
+# sha1
+Print the SHA-1 of the most recent commit (it's the merge commit in case of pull requests)
+
 # pr:range
 Print the commit range of pull request events (example: 123456abcded...abcded123456)
 
