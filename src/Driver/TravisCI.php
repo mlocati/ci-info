@@ -15,7 +15,7 @@ use CIInfo\State;
  */
 class TravisCI implements Driver
 {
-    use Traits\PullrequestStateTrait;
+    use Traits\PullRequestStateTrait;
 
     /**
      * The Travis CI driver handle.
