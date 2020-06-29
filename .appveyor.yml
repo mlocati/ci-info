@@ -32,7 +32,7 @@ test_script:
         if ($type -eq 'pull-request') {
             if ("$(.\bin\ci-info event)" -ne 'pull-request') { throw "Expected $type" }
             $range="$(.\bin\ci-info pr:range)"
-            if (-not($range -match '^[a-f0-9]{6,40}\.\.\.[a-f0-9]{6,40}$')) { throw "Invalid range: $range" }
+            if (-not($range -match '^[a-f0-9]{40}\.\.\.[a-f0-9]{40}$')) { throw "Invalid range: $range" }
         }
   - ps: |
         if ($type -eq 'scheduled') {

@@ -23,7 +23,7 @@ matrix:
               test "$(./bin/ci-info event)" = 'pull-request'
               range="$(./bin/ci-info pr:range)"
               echo "range='$range'"
-              php -r 'exit(preg_match("/^[0-9a-f]{6,40}\.\.\.[0-9a-f]{6,40}$/i", $argv[1]) ? 0 : 1);' "$range"
+              php -r 'exit(preg_match("/^[0-9a-f]{40}\.\.\.[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$range"
     - name: Test API events
       if: type = api
       script: test "$(./bin/ci-info event)" = 'manual'
