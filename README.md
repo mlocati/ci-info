@@ -109,6 +109,11 @@ To get the full list of the features of the `ci-info` command, type:
 $ ./bin/ci-info --help
 ```
 
+Which outputs:
+
+<!-- CI-INFO-HELP-START -->
+<!-- CI-INFO-HELP-END -->
+
 ## Tests
 
 This library is tested against two types of cases:

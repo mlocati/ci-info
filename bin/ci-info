@@ -72,7 +72,7 @@ Allowed values for <command> are:
 Exit code:
 0: success
 1: failure
- 
+
 EOT
             );
         }

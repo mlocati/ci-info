@@ -1,0 +1,110 @@
+#!/bin/sh
+
+set -o nounset
+set -o errexit
+
+if test -z "${GITHUB_EVENT_NAME:-}"; then
+    echo 'Missing GITHUB_EVENT_NAME environment variable' >&2
+    exit 1
+fi
+if test "$GITHUB_EVENT_NAME" != 'push'; then
+    echo "Expected push event, detected $GITHUB_EVENT_NAME"
+    exit 1
+fi
+
+if test -z "${GITHUB_REF:-}"; then
+    echo 'Missing GITHUB_REF environment variable' >&2
+    exit 1
+fi
+if test "$GITHUB_REF" != 'refs/heads/master'; then
+    echo "Expected refs/heads/master, detected $GITHUB_REF"
+    exit 1
+fi
+
+branch="$(git branch --show-current)"
+if test "$branch" != 'master'; then
+    echo "Expected master, detected $branch"
+    exit 1
+fi
+
+if test -z "${AUTHOR_NAME:-}"; then
+    echo 'Missing AUTHOR_NAME environment variable' >&2
+    exit 1
+fi
+if test -z "${AUTHOR_EMAIL:-}"; then
+    echo 'Missing AUTHOR_EMAIL environment variable' >&2
+    exit 1
+fi
+
+if test -z "${DEPLOY_KEY:-}"; then
+    echo 'Missing DEPLOY_KEY environment variable' >&2
+    exit 1
+fi
+
+if test -z "${GITHUB_WORKSPACE:-}"; then
+    echo 'Missing GITHUB_WORKSPACE environment variable' >&2
+    exit 1
+fi
+cd "$GITHUB_WORKSPACE"
+
+helpText="$(./bin/ci-info --help)"
+if test -z "$helpText"; then
+    echo 'Failed to retrieve command help text' >&2
+    exit 1
+fi
+
+originalReadme="$(cat ./README.md)"
+if test -z "$originalReadme"; then
+    echo 'Failed to read README.md' >&2
+    exit 1
+fi
+BACKTICKS='```'
+NEWLINE='
+'
+STATE_INIT=0
+STATE_BEFORE=1
+STATE_INSIDE=2
+STATE_AFTER=3
+state=$STATE_INIT
+while IFS= read -r line ; do
+    if test "$line" = '<!-- CI-INFO-HELP-START -->'; then
+        if test $state -ne $STATE_BEFORE; then
+            echo "Found opening placeholder in wrong state ($state vs $STATE_BEFORE)" >&2
+            exit 1
+        fi
+        updatedReadme="${updatedReadme}${line}${NEWLINE}${BACKTICKS}${NEWLINE}${helpText}${NEWLINE}${BACKTICKS}${NEWLINE}"
+        state=$STATE_INSIDE
+    elif test "$line" = '<!-- CI-INFO-HELP-END -->'; then
+        if test $state -ne $STATE_INSIDE; then
+            echo "Found closing placeholder in wrong state ($state vs $STATE_INSIDE)" >&2
+            exit 1
+        fi
+        updatedReadme="${updatedReadme}${line}${NEWLINE}"
+        state=$STATE_AFTER
+    elif test $state -eq $STATE_INIT; then
+        updatedReadme="${line}${NEWLINE}"
+        state=$STATE_BEFORE
+    elif test $state -ne $STATE_INSIDE; then
+        updatedReadme="${updatedReadme}${line}${NEWLINE}"
+    fi
+done < ./README.md
+if test $state -ne $STATE_AFTER; then
+    echo "Invalid state after parsing README.md ($state vs $STATE_AFTER)" >&2
+    exit 1
+fi
+
+if test "$updatedReadme" = "$originalReadme"; then
+    echo 'No changes detected in README.md'
+    exit 0
+fi
+
+printf '%s' "$updatedReadme" > ./README.md
+
+git config user.name "$AUTHOR_NAME"
+git config user.email "$AUTHOR_EMAIL"
+git add ./README.md
+git commit -m '[skip ci] Update README.md'
+eval "$(ssh-agent)"
+printf '%s' "$DEPLOY_KEY" | tr -d '\r' | ssh-add - >/dev/null
+git push origin master:master
+echo 'README.md updated'

@@ -1,0 +1,27 @@
+name: Update README.md
+
+on:
+  push:
+    branches:
+      - master
+jobs:
+  update_readme:
+    name: Update README.md
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.2'
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Replace new help text
+        env:
+          AUTHOR_NAME: "${{ github.event.commits[0].author.name }}"
+          AUTHOR_EMAIL: "${{ github.event.commits[0].author.email }}"
+          DEPLOY_KEY: "${{ secrets.DEPLOY_KEY }}"
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+        run: ./.github/workflows/update-readme
