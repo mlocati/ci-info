@@ -18,9 +18,17 @@ matrix:
       script: |
         test "$(./bin/ci-info event)" = 'pull-request'
         test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
+        test "$(./bin/ci-info pr:base:branch)" = "$TRAVIS_BRANCH"
+        baseSha1="$(./bin/ci-info pr:base:sha1)"
+        headSha1="$(./bin/ci-info pr:head:sha1)"
         range="$(./bin/ci-info pr:range)"
-        echo "range='$range'"
+        php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$baseSha1"
+        php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$headSha1"
         php -r 'exit(preg_match("/^[0-9a-f]{40}\.\.\.[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$range"
+        if test -n "${TRAVIS_COMMIT_RANGE:-}"; then
+          test "$baseSha1...$headSha1" = "$TRAVIS_COMMIT_RANGE"
+          test "$range" = "$TRAVIS_COMMIT_RANGE"
+        fi
     - name: Test push events
       if: type = push AND tag is blank
       script: |

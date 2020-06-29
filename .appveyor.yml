@@ -28,6 +28,9 @@ test_script:
         if ($type -eq 'pull-request') {
             if ("$(.\bin\ci-info event)" -ne 'pull-request') { throw "Expected $type" }
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
+            if ("$(.\bin\ci-info pr:base:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
+            if ("$(.\bin\ci-info pr:base:sha1)" -eq '') { throw }
+            if ("$(.\bin\ci-info pr:head:sha1)" -ne $Env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT) { throw }
             $range="$(.\bin\ci-info pr:range)"
             if (-not($range -match '^[a-f0-9]{40}\.\.\.[a-f0-9]{40}$')) { throw "Invalid range: $range" }
         }

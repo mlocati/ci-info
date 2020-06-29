@@ -212,6 +212,39 @@ function getAvailableCommands(): array
                     echo $state->getLastCommitSha1(), "\n";
                 },
             ],
+            'pr:base:branch' => [
+                'description' => "Print the target branch of a pull request",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_PULLREQUEST) {
+                        throw new RuntimeException('The current job is not for a pull request.');
+                    }
+                    echo $state->getTargetBranch(), "\n";
+                },
+            ],
+            'pr:base:sha1' => [
+                'description' => "Print the SHA-1 of the last commit in the target branch",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_PULLREQUEST) {
+                        throw new RuntimeException('The current job is not for a pull request.');
+                    }
+                    echo $state->getBaseSha1(), "\n";
+                },
+            ],
+            'pr:head:sha1' => [
+                'description' => "Print the SHA-1 of the last commit in the pull request branch",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_PULLREQUEST) {
+                        throw new RuntimeException('The current job is not for a pull request.');
+                    }
+                    echo $state->getHeadSha1(), "\n";
+                },
+            ],
             'pr:range' => [
                 'description' => "Print the commit range of pull request events (example: 123456abcded...abcded123456)",
                 'exec' => static function (): void {
