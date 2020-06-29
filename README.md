@@ -112,6 +112,38 @@ $ ./bin/ci-info --help
 Which outputs:
 
 <!-- CI-INFO-HELP-START -->
+```
+Syntax:
+  ./bin/ci-info [-q|--quiet] [-h|--help] <command>
+
+Options:
+-q|--quiet: turn off displaying errors
+-h|--help : show this syntax message and quits
+
+Allowed values for <command> are:
+# driver
+Print the handle identifying the current environment.
+Possible results are:
+- appveyor: AppVeyor
+- github-actions: GitHub Actions
+- travis-ci: Travis CI
+
+# event
+Print the current operation type.
+Possible results are:
+- manual
+- pull-request
+- push
+- scheduled
+- tag
+
+# pr:range
+Print the commit range of pull request events (example: 123456abcded...abcded123456)
+
+Exit code:
+0: success
+1: failure
+```
 <!-- CI-INFO-HELP-END -->
 
 ## Tests
