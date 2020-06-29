@@ -27,22 +27,27 @@ test_script:
   - ps: |
         if ($type -eq 'tag') {
             if ("$(.\bin\ci-info event)" -ne 'tag') { throw "Expected $type" }
+            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
         }
   - ps: |
         if ($type -eq 'pull-request') {
             if ("$(.\bin\ci-info event)" -ne 'pull-request') { throw "Expected $type" }
+            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
             $range="$(.\bin\ci-info pr:range)"
             if (-not($range -match '^[a-f0-9]{40}\.\.\.[a-f0-9]{40}$')) { throw "Invalid range: $range" }
         }
   - ps: |
         if ($type -eq 'scheduled') {
             if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw "Expected $type" }
+            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
         }
   - ps: |
         if ($type -eq 'manual') {
             if ("$(.\bin\ci-info event)" -ne 'manual') { throw "Expected $type" }
+            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
         }
   - ps: |
         if ($type -eq 'push') {
             if ("$(.\bin\ci-info event)" -ne 'push') { throw "Expected $type" }
+            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
         }
