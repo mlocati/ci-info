@@ -102,8 +102,21 @@ class TravisCI implements Driver
      */
     protected function createPushState(Env $env): State\Push
     {
+        $branch = $env->getNotEmpty('TRAVIS_BRANCH');
         $actualLastCommitSha1 = $env->getNotEmpty('TRAVIS_COMMIT');
-        $rawRange = $env->getNotEmpty('TRAVIS_COMMIT_RANGE');
+        $rawRange = $env->get('TRAVIS_COMMIT_RANGE');
+        if ($rawRange === '') {
+            // See https://github.com/travis-ci/docs-travis-ci-com/commit/2b9357a1701c4e33d364a41c8686db05751448ee
+            $git = new Git($this->getProjectRootDir($env));
+            $baseCommitSha1 = $git->getLastCommitSHA1("{$actualLastCommitSha1}~");
+            if (!preg_match('/^([0-9a-fA-F]{40})$/', $baseCommitSha1)) {
+                return new State\Push(
+                    $branch,
+                    $actualLastCommitSha1,
+                    $baseCommitSha1
+                );
+            }
+        }
         $matches = null;
         if (!preg_match('/^([0-9a-fA-F]{6,40})\.\.\.([0-9a-fA-F]{6,40})$/', $rawRange, $matches)) {
             throw new Exception\UnexpectedEnvironmentVariableValueException('TRAVIS_COMMIT_RANGE', $rawRange);
@@ -122,6 +135,6 @@ class TravisCI implements Driver
             }
         }
 
-        return new State\Push($env->getNotEmpty('TRAVIS_BRANCH'), $lastCommitSha1, $baseCommitSha1);
+        return new State\Push($branch, $lastCommitSha1, $baseCommitSha1);
     }
 }

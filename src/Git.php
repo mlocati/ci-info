@@ -93,6 +93,18 @@ class Git
     }
 
     /**
+     * Get the last commit SHA-1.
+     *
+     * @throws \CIInfo\Exception\GitFailedException if the git command fails
+     */
+    public function getLastCommitSHA1(string $ref = 'HEAD'): string
+    {
+        $lines = $this->run('log --max-count=1 --format=format:%H ' . escapeshellarg($ref));
+
+        return trim(implode("\n", $lines));
+    }
+
+    /**
      * Get the last commit message.
      *
      * @throws \CIInfo\Exception\GitFailedException if the git command fails
