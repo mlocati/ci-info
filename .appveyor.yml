@@ -25,12 +25,6 @@ test_script:
   - ps: 'Write-Host "Expected type: $type"'
   - ps: if ("$(.\bin\ci-info driver)" -ne 'appveyor') { throw 'Wrong driver' }
   - ps: |
-        if ($type -eq 'tag') {
-            if ("$(.\bin\ci-info event)" -ne 'tag') { throw "Expected $type" }
-            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
-            if (-not("$(.\bin\ci-info tag:name)" -ceq $Env:APPVEYOR_REPO_TAG_NAME)) { throw }
-        }
-  - ps: |
         if ($type -eq 'pull-request') {
             if ("$(.\bin\ci-info event)" -ne 'pull-request') { throw "Expected $type" }
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
@@ -38,9 +32,15 @@ test_script:
             if (-not($range -match '^[a-f0-9]{40}\.\.\.[a-f0-9]{40}$')) { throw "Invalid range: $range" }
         }
   - ps: |
-        if ($type -eq 'scheduled') {
-            if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw "Expected $type" }
+        if ($type -eq 'push') {
+            if ("$(.\bin\ci-info event)" -ne 'push') { throw "Expected $type" }
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
+        }
+  - ps: |
+        if ($type -eq 'tag') {
+            if ("$(.\bin\ci-info event)" -ne 'tag') { throw "Expected $type" }
+            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
+            if (-not("$(.\bin\ci-info tag:name)" -ceq $Env:APPVEYOR_REPO_TAG_NAME)) { throw }
         }
   - ps: |
         if ($type -eq 'manual') {
@@ -48,7 +48,7 @@ test_script:
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
         }
   - ps: |
-        if ($type -eq 'push') {
-            if ("$(.\bin\ci-info event)" -ne 'push') { throw "Expected $type" }
+        if ($type -eq 'scheduled') {
+            if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw "Expected $type" }
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
         }

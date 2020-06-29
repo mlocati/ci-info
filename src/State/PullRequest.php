@@ -74,6 +74,7 @@ class PullRequest implements State
      * {@inheritdoc}
      *
      * @see \CIInfo\State::getLastCommitSha1()
+     * @see \CIInfo\State\PullRequest::getMergeSha1()
      */
     public function getLastCommitSha1(): string
     {

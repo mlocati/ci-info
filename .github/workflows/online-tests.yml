@@ -40,12 +40,6 @@ jobs:
       - name: Check engine
         run: |
           test "$(./bin/ci-info driver)" = 'github-actions'
-      - name: Check tag creation
-        if: github.event_name == 'create'
-        run: |
-          test "$(./bin/ci-info event)" = 'tag'
-          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
-          test "$(./bin/ci-info tag;name)" = ${GITHUB_REF#refs/tags/}
       - name: Check pull_request events
         if: github.event_name == 'pull_request'
         run: |
@@ -59,15 +53,21 @@ jobs:
         run: |
           test "$(./bin/ci-info event)" = 'push'
           test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
-      - name: Check scheduled events
-        if: github.event_name == 'schedule'
+      - name: Check tag creation
+        if: github.event_name == 'create'
         run: |
-          test "$(./bin/ci-info event)" = 'scheduled'
+          test "$(./bin/ci-info event)" = 'tag'
           test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
+          test "$(./bin/ci-info tag;name)" = ${GITHUB_REF#refs/tags/}
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
         run: |
           test "$(./bin/ci-info event)" = 'manual'
+          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
+      - name: Check scheduled events
+        if: github.event_name == 'schedule'
+        run: |
+          test "$(./bin/ci-info event)" = 'scheduled'
           test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
   test_windows:
     strategy:
@@ -98,13 +98,6 @@ jobs:
       - name: Check engine
         run: |
           if ("$(.\bin\ci-info driver)" -ne 'github-actions') { throw }
-      - name: Check tag creation
-        if: github.event_name == 'create'
-        run: |
-          if ("$(.\bin\ci-info event)" -ne 'tag') { throw }
-          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
-          $tagName="$(.\bin\ci-info tag:name)"
-          if (-not("refs/tags/$tagName" -ceq $Env:GITHUB_REF)) { throw }
       - name: Check pull_request events
         if: github.event_name == 'pull_request'
         run: |
@@ -117,13 +110,20 @@ jobs:
         run: |
           if ("$(.\bin\ci-info event)" -ne 'push') { throw }
           if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
-      - name: Check scheduled events
-        if: github.event_name == 'schedule'
+      - name: Check tag creation
+        if: github.event_name == 'create'
         run: |
-          if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw }
+          if ("$(.\bin\ci-info event)" -ne 'tag') { throw }
           if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
+          $tagName="$(.\bin\ci-info tag:name)"
+          if (-not("refs/tags/$tagName" -ceq $Env:GITHUB_REF)) { throw }
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
         run: |
           if ("$(.\bin\ci-info event)" -ne 'manual') { throw }
+          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
+      - name: Check scheduled events
+        if: github.event_name == 'schedule'
+        run: |
+          if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw }
           if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
