@@ -247,6 +247,24 @@ function getAvailableCommands(): array
                     echo $state->getHeadSha1(), "\n";
                 },
             ],
+            State::EVENT_PULLREQUEST . ':wrongsha1' => [
+                'description' => <<<'EOT'
+Print the wrong SHA-1 of the merge commit of a pull request event as defined by the current environment.
+For example, the TRAVIS_COMMIT environment variable defined in TravisCI may be wrong (see https://travis-ci.community/t/travis-commit-is-not-the-commit-initially-checked-out/3775 )
+If there merge commit SHA-1 is correct, nothing gets printed out. 
+EOT
+                ,
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_PULLREQUEST) {
+                        throw new RuntimeException('The current job is not for a pull request.');
+                    }
+                    if ($state instanceof State\PullRequestWithWrongEnviro) {
+                        echo $state->getWrongMergeSha1(), "\n";
+                    }
+                },
+            ],
             State::EVENT_PULLREQUEST . ':range' => [
                 'description' => "Print the commit range of pull request events (example: 123456abcded...abcded123456)",
                 'exec' => static function (): void {

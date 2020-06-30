@@ -21,24 +21,62 @@ matrix:
     - name: Test pull request events
       if: type = pull_request
       script: |
-        echo 'Testing event type'
-        test "$(./bin/ci-info event)" = 'pr'
-        echo 'Testing last commit SHA-1'
-        test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
+        printf 'Retrieving event type... '
+        event="$(./bin/ci-info event)"
+        printf ' done (%s)\n' "$event"
+        printf 'Checking event type... '
+        test "$event" = 'pr'
+        printf 'passed.\n'
+        printf 'Retrieving last wrong commit SHA-1... '
+        wrongSHA1="$(./bin/ci-info pr:wrongsha1)"
+        printf ' done (%s)\n' "$wrongSHA1"
+        if test -n "$wrongSHA1"; then
+          printf 'Testing last wrong commit SHA-1... '
+          test "$wrongSHA1" = "$TRAVIS_COMMIT"
+          printf 'passed.\n'
+        fi
+        printf 'Retrieving last commit SHA-1... '
+        sha1="$(./bin/ci-info sha1)"
+        printf ' done (%s)\n' "$sha1"
+        printf 'Testing last commit SHA-1... '
+        if test -n "$wrongSHA1"; then
+          php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$sha1"
+        else
+          test "$sha1" = "$TRAVIS_COMMIT"
+        fi
+        printf 'passed.\n'
+        printf 'Retrieving base branch name... '
+        branch="$(./bin/ci-info pr:base:branch)"
+        printf ' done (%s)\n' "$branch"
+        printf 'Testing base branch name... '
         echo 'Testing base branch'
-        test "$(./bin/ci-info pr:base:branch)" = "$TRAVIS_BRANCH"
-        echo 'Retrieving base SHA-1'
+        test "$branch" = "$TRAVIS_BRANCH"
+        printf 'passed.\n'
+        echo 'Retrieving base commit SHA-1... '
         baseSha1="$(./bin/ci-info pr:base:sha1)"
-        echo 'Retrieving head SHA-1'
-        headSha1="$(./bin/ci-info pr:head:sha1)"
-        echo 'Retrieving commit range'
-        range="$(./bin/ci-info pr:range)"
+        printf ' done (%s)\n' "$baseSha1"
+        printf 'Testing base commit SHA-1 format... '
         php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$baseSha1"
+        printf 'passed.\n'
+        echo 'Retrieving head commit SHA-1... '
+        headSha1="$(./bin/ci-info pr:head:sha1)"
+        printf ' done (%s)\n' "$headSha1"
+        printf 'Testing head commit SHA-1 format... '
         php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$headSha1"
+        printf 'passed.\n'
+        echo 'Retrieving commit range... '
+        range="$(./bin/ci-info pr:range)"
+        printf ' done (%s)\n' "$range"
+        printf 'Testing commit range format... '
         php -r 'exit(preg_match("/^[0-9a-f]{40}\.\.\.[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$range"
+        printf 'passed.\n'
         if test -n "${TRAVIS_COMMIT_RANGE:-}"; then
+          printf 'Testing actual base/head commit SHA-1... '
           test "$baseSha1...$headSha1" = "$TRAVIS_COMMIT_RANGE"
+          printf 'passed.\n'  
+          printf 'Testing actual commit range... '
           test "$range" = "$TRAVIS_COMMIT_RANGE"
+          printf 'passed.\n'
         fi
     - name: Test push events
       if: type = push AND tag is blank

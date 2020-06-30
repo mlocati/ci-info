@@ -15,7 +15,9 @@ use CIInfo\State;
  */
 class TravisCI implements Driver
 {
-    use Traits\PullRequestStateTrait;
+    use Traits\PullRequestStateTrait {
+        createPullRequestState as createPullRequestStateBase;
+    }
 
     /**
      * The Travis CI driver handle.
@@ -95,6 +97,37 @@ class TravisCI implements Driver
             default:
                 throw new Exception\UnexpectedEnvironmentVariableValueException('TRAVIS_EVENT_TYPE', $eventType);
         }
+    }
+
+    /**
+     * @throws \CIInfo\Exception\MissingEnvironmentVariableException if a required environment variable is missing or empty
+     * @throws \CIInfo\Exception\GitFailedException if the git command fails
+     * @throws \CIInfo\Exception\GitHistoryTooShortException if the git git history is too short (see git clone --depth)
+     * @throws \CIInfo\Exception\InvalidPullRequestStateException if the detection of the pull request state gives bad results
+     *
+     * @see https://travis-ci.community/t/travis-commit-is-not-the-commit-initially-checked-out/3775
+     */
+    protected function createPullRequestState(Env $env, string $targetBranch, string $mergeSha1, ?string $expectedHeadSha1 = null, ?string $expectedCommitRange = null): State\PullRequest
+    {
+        $git = new Git($this->getProjectRootDir($env));
+        try {
+            $mergeSha1FromGit = $git->getLastCommitSHA1();
+            if ($mergeSha1FromGit !== '' && strcasecmp($mergeSha1, $mergeSha1FromGit) !== 0) {
+                $correctState = $this->createPullRequestStateFromGitHistory($env, $targetBranch);
+                if ($correctState !== null) {
+                    return new State\PullRequestWithWrongEnviro(
+                        $correctState->getTargetBranch(),
+                        $correctState->getBaseSha1(),
+                        $correctState->getHeadSha1(),
+                        $correctState->getMergeSha1(),
+                        $mergeSha1
+                    );
+                }
+            }
+        } catch (Exception $x) {
+        }
+
+        return $this->createPullRequestStateBase($env, $targetBranch, $mergeSha1, $expectedHeadSha1, $expectedCommitRange);
     }
 
     /**
