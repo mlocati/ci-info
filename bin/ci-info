@@ -181,7 +181,8 @@ function getAvailableCommands(): array
             if (!is_string($constantValue)) {
                 continue;
             }
-            $stateValues[] = $constantValue;
+            $stateDescription = getStateDescription($constantValue);
+            $stateValues[] = $constantValue . ($stateDescription === '' ? '' : ": {$stateDescription}"); 
         }
         sort($stateValues);
         $stateValues = '- ' . implode("\n- ", $stateValues);
@@ -311,6 +312,18 @@ function getAvailableCommands(): array
     }
 
     return $commands;
+}
+
+function getStateDescription(string $id): string
+{
+    $map = [
+        State::EVENT_PULLREQUEST => 'Pull request event',
+        State::EVENT_PUSH => 'Push event',
+        State::EVENT_TAG => 'Tag creation event',
+        State::EVENT_MANUAL => 'Manually triggered event (API calls, repository_dispatch events, forced rebuilds, ...)',
+        State::EVENT_SCHEDULED => 'Scheduled event',
+    ];
+    return $map[$id] ?? '';
 }
 
 function getSelectedCommand(): Closure
