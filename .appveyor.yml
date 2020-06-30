@@ -5,60 +5,16 @@ init:
   - ps: Install-Php -Version '7.2' -Architecture x64 -ThreadSafe $false -Path C:\PHP -TimeZone UTC -AddToPath System -InitialPhpIni Production -InstallVC -Force
 build: 'off'
 test_script:
-  - ps: $ErrorActionPreference = "Stop";
   - ps: |
-        if ($Env:APPVEYOR_REPO_TAG -eq 'true') {
-            $type='tag'
-        } elseif ($Env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT) {
-            $type='pull-request'
-        } elseif ($Env:APPVEYOR_SCHEDULED_BUILD) {
-            $type='scheduled'
-        } elseif ($Env:APPVEYOR_FORCED_BUILD) {
-            $type='manual'
-        } else {
-            $type='push'
-        }
-  - ps: 'Write-Host "Expected type: $type"'
-  - ps: if ("$(.\bin\ci-info driver)" -ne 'appveyor') { throw 'Wrong driver' }
-  - ps: |
-        if ($type -eq 'pull-request') {
-            if ("$(.\bin\ci-info event)" -ne 'pr') { throw "Expected $type" }
-            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
-            if ("$(.\bin\ci-info pr:base:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
-            if ("$(.\bin\ci-info pr:base:sha1)" -eq '') { throw }
-            if ("$(.\bin\ci-info pr:head:sha1)" -ne $Env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT) { throw }
-            $range="$(.\bin\ci-info pr:range)"
-            if (-not($range -match '^[a-f0-9]{40}\.\.\.[a-f0-9]{40}$')) { throw "Invalid range: $range" }
-        }
-  - ps: |
-        if ($type -eq 'push') {
-            if ("$(.\bin\ci-info event)" -ne 'push') { throw "Expected $type" }
-            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
-            if ("$(.\bin\ci-info push:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
-            $exception=$null
-            try { .\bin\ci-info push:prev:sha1 2>&1} catch { $exception=$_ }
-            if ($null -eq $exception) { throw 'Expected exception' }
-            if (-not($exception.Exception.Message -like '*provide a way to detect the previous commit of a push event*')) { throw $exception }
-            $exception=$null
-            try { .\bin\ci-info push:range 2>&1} catch { $exception=$_ }
-            if ($null -eq $exception) { throw 'Expected exception' }
-            if (-not($exception.Exception.Message -like '*provide a way to detect the previous commit of a push event*')) { throw $exception }
-        }
-  - ps: |
-        if ($type -eq 'tag') {
-            if ("$(.\bin\ci-info event)" -ne 'tag') { throw "Expected $type" }
-            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
-            if (-not("$(.\bin\ci-info tag:name)" -ceq $Env:APPVEYOR_REPO_TAG_NAME)) { throw }
-        }
-  - ps: |
-        if ($type -eq 'manual') {
-            if ("$(.\bin\ci-info event)" -ne 'manual') { throw "Expected $type" }
-            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
-            if ("$(.\bin\ci-info manual:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
-        }
-  - ps: |
-        if ($type -eq 'scheduled') {
-            if ("$(.\bin\ci-info event)" -ne 'cron') { throw "Expected $type" }
-            if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
-            if ("$(.\bin\ci-info cron:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
-        }
+     .\test\online\driver.ps1 'appveyor'
+     if ($Env:APPVEYOR_REPO_TAG -eq 'true') {
+       .\test\online\tag.ps1 $Env:APPVEYOR_REPO_COMMIT $Env:APPVEYOR_REPO_TAG_NAME
+     } elseif ($Env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT) {
+       .\test\online\pr.ps1 $Env:APPVEYOR_REPO_COMMIT $Env:APPVEYOR_REPO_BRANCH '' $Env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT ''
+     } elseif ($Env:APPVEYOR_SCHEDULED_BUILD) {
+       .\test\online\cron.ps1 $Env:APPVEYOR_REPO_COMMIT $Env:APPVEYOR_REPO_BRANCH
+     } elseif ($Env:APPVEYOR_FORCED_BUILD) {
+       .\test\online\manual.ps1 $Env:APPVEYOR_REPO_COMMIT $Env:APPVEYOR_REPO_BRANCH
+     } else {
+       .\test\online\push.ps1 $Env:APPVEYOR_REPO_COMMIT $Env:APPVEYOR_REPO_BRANCH '' 'provide a way to detect the previous commit of a push event'
+     }

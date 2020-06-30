@@ -31,65 +31,32 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Configure environment
-        run: |
-          set -o errexit
-      - name: Check engine
-        run: |
-          test "$(./bin/ci-info driver)" = 'github-actions'
+      - name: Check driver
+        run: ./test/online/driver 'github-actions'
       - name: Check pull_request events
         if: github.event_name == 'pull_request'
         env:
           EXPECTED_BASE_SHA1: ${{ github.event.pull_request.base.sha }}
           EXPECTED_HEAD_SHA1: ${{ github.event.pull_request.head.sha }}
-        run: |
-          test "$(./bin/ci-info event)" = 'pr'
-          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
-          test "$(./bin/ci-info pr:base:branch)" = "$GITHUB_BASE_REF"
-          test "$(./bin/ci-info pr:base:sha1)" = "$EXPECTED_BASE_SHA1"
-          test "$(./bin/ci-info pr:head:sha1)" = "$EXPECTED_HEAD_SHA1"
-          range="$(./bin/ci-info pr:range)"
-          echo "range='$range'"
-          php -r 'exit(preg_match("/^[0-9a-f]{40}\.\.\.[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$range"
+        run: ./test/online/pr "$GITHUB_SHA" "$GITHUB_BASE_REF" "$EXPECTED_BASE_SHA1" "$EXPECTED_HEAD_SHA1" "$EXPECTED_BASE_SHA1...$EXPECTED_HEAD_SHA1"
       - name: Check push events (without GITHUB_CONTEXT)
         if: github.event_name == 'push'
-        run: |
-          test "$(./bin/ci-info event)" = 'push'
-          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
-          test "refs/heads/$(./bin/ci-info push:branch)" = "$GITHUB_REF"
-          error="$(./bin/ci-info push:prev:sha1 2>&1 1>/dev/null || true)"
-          test -n "$(printf '%s' "$error" | grep 'pass the github state to the build job by setting a GITHUB_CONTEXT environment variable')"
-          error="$(./bin/ci-info push:range 2>&1 1>/dev/null || true)"
-          test -n "$(printf '%s' "$error" | grep 'pass the github state to the build job by setting a GITHUB_CONTEXT environment variable')"
+        run: ./test/online/push "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}" '' 'no built-in environment variables in GitHub Actions holding the previous commit of a push event'
       - name: Check push events (with GITHUB_CONTEXT)
         if: github.event_name == 'push'
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           EXPECTED_PREV_SHA1: ${{ github.event.before }}
-        run: |
-          test "$(./bin/ci-info event)" = 'push'
-          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
-          test "refs/heads/$(./bin/ci-info push:branch)" = "$GITHUB_REF"
-          test "$(./bin/ci-info push:prev:sha1)" = "$EXPECTED_PREV_SHA1"
-          test "$(./bin/ci-info push:range)" = "$EXPECTED_PREV_SHA1...$GITHUB_SHA"
+        run: ./test/online/push "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}" "$EXPECTED_PREV_SHA1" ''
       - name: Check tag creation
         if: github.event_name == 'create'
-        run: |
-          test "$(./bin/ci-info event)" = 'tag'
-          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
-          test "$(./bin/ci-info tag;name)" = ${GITHUB_REF#refs/tags/}
+        run: ./test/online/tag "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}"
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
-        run: |
-          test "$(./bin/ci-info event)" = 'manual'
-          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
-          test "refs/heads/$(./bin/ci-info manual:branch)" = "$GITHUB_REF"
+        run: ./test/online/manual "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}"
       - name: Check scheduled events
         if: github.event_name == 'schedule'
-        run: |
-          test "$(./bin/ci-info event)" = 'cron'
-          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
-          test "refs/heads/$(./bin/ci-info cron:branch)" = "$GITHUB_REF"
+        run: ./test/online/cron "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}"
   test_windows:
     strategy:
       matrix:
@@ -110,66 +77,29 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Configure environment
-        run: |
-          $ErrorActionPreference = 'stop'
-      - name: Check engine
-        run: |
-          if ("$(.\bin\ci-info driver)" -ne 'github-actions') { throw }
+      - name: Check driver
+        run: .\test\online\driver.ps1 'github-actions'
       - name: Check pull_request events
         if: github.event_name == 'pull_request'
         env:
           EXPECTED_BASE_SHA1: ${{ github.event.pull_request.base.sha }}
           EXPECTED_HEAD_SHA1: ${{ github.event.pull_request.head.sha }}
-        run: |
-          if ("$(.\bin\ci-info event)" -ne 'pr') { throw }
-          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
-          if ("$(.\bin\ci-info pr:base:branch)" -ne $Env:GITHUB_BASE_REF) { throw }
-          if ("$(.\bin\ci-info pr:base:sha1)" -ne $Env:EXPECTED_BASE_SHA1) { throw }
-          if ("$(.\bin\ci-info pr:head:sha1)" -ne $Env:EXPECTED_HEAD_SHA1) { throw }
-          $range="$(.\bin\ci-info pr:range)"
-          if (-not($range -match '^[a-f0-9]{40}\.\.\.[a-f0-9]{40}$')) { throw "Invalid range: $range" }
+        run: .\test\online\pr.ps1 $Env:GITHUB_SHA $Env:GITHUB_BASE_REF $Env:EXPECTED_BASE_SHA1 $Env:EXPECTED_HEAD_SHA1 "$Env:EXPECTED_BASE_SHA1...$Env:EXPECTED_HEAD_SHA1"
       - name: Check push events (without GITHUB_CONTEXT)
         if: github.event_name == 'push'
-        run: |
-          if ("$(.\bin\ci-info event)" -ne 'push') { throw }
-          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
-          if ("refs/heads/$(.\bin\ci-info push:branch)" -ne $Env:GITHUB_REF) { throw }
-          $exception=$null
-          try { .\bin\ci-info push:prev:sha1 2>&1} catch { $exception=$_ }
-          if ($null -eq $exception) { throw 'Expected exception' }
-          if (-not($exception.Exception.Message -like '*no built-in environment variables in GitHub Actions holding*')) { throw $exception }
-          $exception=$null
-          try { .\bin\ci-info push:range 2>&1} catch { $exception=$_ }
-          if ($null -eq $exception) { throw 'Expected exception' }
-          if (-not($exception.Exception.Message -like '*no built-in environment variables in GitHub Actions holding*')) { throw $exception }
+        run: .\test\online\push.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','') '' 'no built-in environment variables in GitHub Actions holding the previous commit of a push event'
       - name: Check push events (with GITHUB_CONTEXT)
         if: github.event_name == 'push'
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           EXPECTED_PREV_SHA1: ${{ github.event.before }}
-        run: |
-          if ("$(.\bin\ci-info event)" -ne 'push') { throw }
-          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
-          if ("refs/heads/$(.\bin\ci-info push:branch)" -ne $Env:GITHUB_REF) { throw }
-          if ("$(.\bin\ci-info push:prev:sha1)" -ne $Env:EXPECTED_PREV_SHA1) { throw }
-          if ("$(.\bin\ci-info push:range)" -ne "$Env:EXPECTED_PREV_SHA1...$Env:GITHUB_SHA") { throw }
+        run: .\test\online\push.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','') $Env:EXPECTED_PREV_SHA1 ''
       - name: Check tag creation
         if: github.event_name == 'create'
-        run: |
-          if ("$(.\bin\ci-info event)" -ne 'tag') { throw }
-          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
-          $tagName="$(.\bin\ci-info tag:name)"
-          if (-not("refs/tags/$tagName" -ceq $Env:GITHUB_REF)) { throw }
+        run: .\test\online\tag.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','')
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
-        run: |
-          if ("$(.\bin\ci-info event)" -ne 'manual') { throw }
-          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
-          if ("refs/heads/$(.\bin\ci-info manual:branch)" -ne $Env:GITHUB_REF) { throw }
+        run: .\test\online\manual.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','')
       - name: Check scheduled events
         if: github.event_name == 'schedule'
-        run: |
-          if ("$(.\bin\ci-info event)" -ne 'cron') { throw }
-          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
-          if ("refs/heads/$(.\bin\ci-info cron:branch)" -ne $Env:GITHUB_REF) { throw }
+        run: .\test\online\cron.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','')

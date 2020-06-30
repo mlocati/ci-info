@@ -1,0 +1,46 @@
+#!/bin/sh
+
+set -o errexit
+set -o nounset
+
+expectedHeadSHA1="$1"
+expectedTag="$2"
+
+printf 'Retrieving event type... '
+eventType="$(./bin/ci-info event)"
+if test -z "$eventType"; then
+    exit 1
+fi
+printf 'done (%s).\n' "$eventType"
+printf 'Checking event type... '
+if test "$eventType" != 'tag'; then
+    printf "failed (expected '%s', got '%s')\n" 'tag' "$eventType" >&2
+    exit 1
+fi
+printf 'passed.\n'
+
+printf 'Retrieving head commit SHA-1... '
+headSha1="$(./bin/ci-info sha1)"
+if test -z "$headSha1"; then
+    exit 1
+fi
+printf 'done (%s).\n' "$headSha1"
+printf 'Checking head commit SHA-1... '
+if test "$headSha1" != "$expectedHeadSHA1"; then
+    printf "failed (expected '%s', got '%s')\n" "$expectedHeadSHA1" "$headSha1" >&2
+    exit 1
+fi
+printf 'passed.\n'
+
+printf 'Retrieving tag name... '
+tag="$(./bin/ci-info tag:name)"
+if test -z "$tag"; then
+    exit 1
+fi
+printf 'done (%s).\n' "$tag"
+printf 'Checking tag name... '
+if test "$tag" != "$expectedTag"; then
+    printf "failed (expected '%s', got '%s')\n" "$expectedTag" "$tag" >&2
+    exit 1
+fi
+printf 'passed.\n'
