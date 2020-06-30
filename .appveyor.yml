@@ -58,7 +58,7 @@ test_script:
         }
   - ps: |
         if ($type -eq 'scheduled') {
-            if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw "Expected $type" }
+            if ("$(.\bin\ci-info event)" -ne 'cron') { throw "Expected $type" }
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
-            if ("$(.\bin\ci-info scheduled:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
+            if ("$(.\bin\ci-info cron:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
         }

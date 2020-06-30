@@ -35,7 +35,7 @@ interface State
      *
      * @var string
      */
-    public const EVENT_SCHEDULED = 'scheduled';
+    public const EVENT_SCHEDULED = 'cron';
 
     /**
      * Event identifier: manual trigger (via APIs, web requests, ...).
