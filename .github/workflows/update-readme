@@ -3,6 +3,7 @@
 set -o nounset
 set -o errexit
 
+printf 'Checking GITHUB_EVENT_NAME... '
 if test -z "${GITHUB_EVENT_NAME:-}"; then
     echo 'Missing GITHUB_EVENT_NAME environment variable' >&2
     exit 1
@@ -11,7 +12,9 @@ if test "$GITHUB_EVENT_NAME" != 'push'; then
     echo "Expected push event, detected $GITHUB_EVENT_NAME"
     exit 1
 fi
+echo 'passed.'
 
+printf 'Checking GITHUB_REF... '
 if test -z "${GITHUB_REF:-}"; then
     echo 'Missing GITHUB_REF environment variable' >&2
     exit 1
@@ -20,13 +23,17 @@ if test "$GITHUB_REF" != 'refs/heads/master'; then
     echo "Expected refs/heads/master, detected $GITHUB_REF"
     exit 1
 fi
+echo 'passed.'
 
+printf 'Checking currently checked out branch... '
 branch="$(git branch --show-current)"
 if test "$branch" != 'master'; then
     echo "Expected master, detected $branch"
     exit 1
 fi
+echo 'passed.'
 
+printf 'Checking prospective commit author... '
 if test -z "${AUTHOR_NAME:-}"; then
     echo 'Missing AUTHOR_NAME environment variable' >&2
     exit 1
@@ -35,29 +42,40 @@ if test -z "${AUTHOR_EMAIL:-}"; then
     echo 'Missing AUTHOR_EMAIL environment variable' >&2
     exit 1
 fi
+echo 'passed.'
 
+printf 'Checking DEPLOY_KEY... '
 if test -z "${DEPLOY_KEY:-}"; then
     echo 'Missing DEPLOY_KEY environment variable' >&2
     exit 1
 fi
+echo 'passed.'
 
+printf 'Checking GITHUB_WORKSPACE... '
 if test -z "${GITHUB_WORKSPACE:-}"; then
     echo 'Missing GITHUB_WORKSPACE environment variable' >&2
     exit 1
 fi
 cd "$GITHUB_WORKSPACE"
+echo 'passed.'
 
+printf 'Checking ci-info --help... '
 helpText="$(./bin/ci-info --help)"
 if test -z "$helpText"; then
     echo 'Failed to retrieve command help text' >&2
     exit 1
 fi
+echo 'passed.'
 
+printf 'Reading README.md... '
 originalReadme="$(cat ./README.md)"
 if test -z "$originalReadme"; then
     echo 'Failed to read README.md' >&2
     exit 1
 fi
+echo 'done.'
+
+echo 'Parsing README.md:'
 BACKTICKS='```'
 NEWLINE='
 '
@@ -74,6 +92,7 @@ while IFS= read -r line ; do
         fi
         updatedReadme="${updatedReadme}${line}${NEWLINE}${BACKTICKS}${NEWLINE}${helpText}${NEWLINE}${BACKTICKS}${NEWLINE}"
         state=$STATE_INSIDE
+        echo ' - new help text inserted'
     elif test "$line" = '<!-- CI-INFO-HELP-END -->'; then
         if test $state -ne $STATE_INSIDE; then
             echo "Found closing placeholder in wrong state ($state vs $STATE_INSIDE)" >&2
@@ -81,9 +100,11 @@ while IFS= read -r line ; do
         fi
         updatedReadme="${updatedReadme}${line}${NEWLINE}"
         state=$STATE_AFTER
+        echo ' - copy lines after placeholders'
     elif test $state -eq $STATE_INIT; then
         updatedReadme="${line}${NEWLINE}"
         state=$STATE_BEFORE
+        echo ' - copy lines before placeholders'
     elif test $state -ne $STATE_INSIDE; then
         updatedReadme="${updatedReadme}${line}${NEWLINE}"
     fi
@@ -93,18 +114,36 @@ if test $state -ne $STATE_AFTER; then
     exit 1
 fi
 
-if test "$updatedReadme" = "$originalReadme"; then
-    echo 'No changes detected in README.md'
+printf 'Writing contents to README.md... '
+printf '%s' "$updatedReadme" > ./README.md
+echo 'done.'
+
+printf 'Checking changes in README.md... '
+if git diff-index --exit-code --quiet HEAD ./README.md; then
+    echo 'no changes detected.'
     exit 0
 fi
+echo 'changes detected.'
 
-printf '%s' "$updatedReadme" > ./README.md
-
+echo 'Configuring git author... '
 git config user.name "$AUTHOR_NAME"
 git config user.email "$AUTHOR_EMAIL"
+echo 'done.'
+
+echo 'Staging changes... '
 git add ./README.md
+echo 'done.'
+
+echo 'Committing changes... '
 git commit -m '[skip ci] Update README.md'
+echo 'done.'
+
+echo 'Configuring SSH agent... '
 eval "$(ssh-agent)"
 printf '%s' "$DEPLOY_KEY" | tr -d '\r' | ssh-add - >/dev/null
+echo 'done.'
+
+echo 'Pushing... '
 git push origin master:master
-echo 'README.md updated'
+echo 'done.'
+
