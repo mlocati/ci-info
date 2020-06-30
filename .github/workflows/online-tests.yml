@@ -83,11 +83,13 @@ jobs:
         run: |
           test "$(./bin/ci-info event)" = 'manual'
           test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
+          test "refs/heads/$(./bin/ci-info manual:branch)" = "$GITHUB_REF"
       - name: Check scheduled events
         if: github.event_name == 'schedule'
         run: |
           test "$(./bin/ci-info event)" = 'scheduled'
           test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
+          test "refs/heads/$(./bin/ci-info scheduled:branch)" = "$GITHUB_REF"
   test_windows:
     strategy:
       matrix:
@@ -164,8 +166,10 @@ jobs:
         run: |
           if ("$(.\bin\ci-info event)" -ne 'manual') { throw }
           if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
+          if ("refs/heads/$(.\bin\ci-info manual:branch)" -ne $Env:GITHUB_REF) { throw }
       - name: Check scheduled events
         if: github.event_name == 'schedule'
         run: |
           if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw }
           if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
+          if ("refs/heads/$(.\bin\ci-info scheduled:branch)" -ne $Env:GITHUB_REF) { throw }

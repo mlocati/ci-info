@@ -54,9 +54,11 @@ test_script:
         if ($type -eq 'manual') {
             if ("$(.\bin\ci-info event)" -ne 'manual') { throw "Expected $type" }
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
+            if ("$(.\bin\ci-info manual:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
         }
   - ps: |
         if ($type -eq 'scheduled') {
             if ("$(.\bin\ci-info event)" -ne 'scheduled') { throw "Expected $type" }
             if ("$(.\bin\ci-info sha1)" -ne $Env:APPVEYOR_REPO_COMMIT) { throw }
+            if ("$(.\bin\ci-info scheduled:branch)" -ne $Env:APPVEYOR_REPO_BRANCH) { throw }
         }

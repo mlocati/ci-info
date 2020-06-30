@@ -94,14 +94,42 @@ matrix:
     - name: Test API events
       if: type = api
       script: |
-        echo 'Testing event type'
-        test "$(./bin/ci-info event)" = 'manual'
-        echo 'Testing last commit SHA-1'
-        test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
+        printf 'Retrieving event type... '
+        event="$(./bin/ci-info event)"
+        printf ' done (%s)\n' "$event"
+        printf 'Checking event type... '
+        test "$event" = 'manual'
+        printf 'passed.\n'
+        printf 'Retrieving last commit SHA-1... '
+        sha1="$(./bin/ci-info sha1)"
+        printf ' done (%s)\n' "$sha1"
+        printf 'Checking last commit SHA-1... '
+        test "$sha1" = "$TRAVIS_COMMIT"
+        printf 'passed.\n'
+        printf 'Retrieving branch name... '
+        branch="$(./bin/ci-info manual:branch)"
+        printf ' done (%s)\n' "$branch"
+        printf 'Checking branch name... '
+        test "$branch" = "$TRAVIS_BRANCH"
+        printf 'passed.\n'
     - name: Test cron events
       if: type = cron
       script: |
-        echo 'Testing event type'
-        test "$(./bin/ci-info event)" = 'scheduled'
-        echo 'Testing last commit SHA-1'
-        test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
+        printf 'Retrieving event type... '
+        event="$(./bin/ci-info event)"
+        printf ' done (%s)\n' "$event"
+        printf 'Checking event type... '
+        test "$event" = 'scheduled'
+        printf 'passed.\n'
+        printf 'Retrieving last commit SHA-1... '
+        sha1="$(./bin/ci-info sha1)"
+        printf ' done (%s)\n' "$sha1"
+        printf 'Checking last commit SHA-1... '
+        test "$sha1" = "$TRAVIS_COMMIT"
+        printf 'passed.\n'
+        printf 'Retrieving branch name... '
+        branch="$(./bin/ci-info scheduled:branch)"
+        printf ' done (%s)\n' "$branch"
+        printf 'Checking branch name... '
+        test "$branch" = "$TRAVIS_BRANCH"
+        printf 'passed.\n'
