@@ -308,6 +308,28 @@ function getAvailableCommands(): array
                     echo $state->getTag(), "\n";
                 },
             ],
+            'manual:branch' => [
+                'description' => "Print the current branch in a manually-triggered job",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_MANUAL) {
+                        throw new RuntimeException('The current job is not a manually triggered job.');
+                    }
+                    echo $state->getBranch(), "\n";
+                },
+            ],
+            'scheduled:branch' => [
+                'description' => "Print the current branch in a scheduled job",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_SCHEDULED) {
+                        throw new RuntimeException('The current job is not a scheduled triggered job.');
+                    }
+                    echo $state->getBranch(), "\n";
+                },
+            ],
         ];
     }
 
