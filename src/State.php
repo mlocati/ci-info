@@ -21,7 +21,7 @@ interface State
      *
      * @var string
      */
-    public const EVENT_PULLREQUEST = 'pull-request';
+    public const EVENT_PULLREQUEST = 'pr';
 
     /**
      * Event identifier: tag created.

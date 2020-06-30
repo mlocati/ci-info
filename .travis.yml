@@ -22,7 +22,7 @@ matrix:
       if: type = pull_request
       script: |
         echo 'Testing event type'
-        test "$(./bin/ci-info event)" = 'pull-request'
+        test "$(./bin/ci-info event)" = 'pr'
         echo 'Testing last commit SHA-1'
         test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
         echo 'Testing base branch'

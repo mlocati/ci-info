@@ -43,7 +43,7 @@ jobs:
           EXPECTED_BASE_SHA1: ${{ github.event.pull_request.base.sha }}
           EXPECTED_HEAD_SHA1: ${{ github.event.pull_request.head.sha }}
         run: |
-          test "$(./bin/ci-info event)" = 'pull-request'
+          test "$(./bin/ci-info event)" = 'pr'
           test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
           test "$(./bin/ci-info pr:base:branch)" = "$GITHUB_BASE_REF"
           test "$(./bin/ci-info pr:base:sha1)" = "$EXPECTED_BASE_SHA1"
@@ -120,7 +120,7 @@ jobs:
           EXPECTED_BASE_SHA1: ${{ github.event.pull_request.base.sha }}
           EXPECTED_HEAD_SHA1: ${{ github.event.pull_request.head.sha }}
         run: |
-          if ("$(.\bin\ci-info event)" -ne 'pull-request') { throw }
+          if ("$(.\bin\ci-info event)" -ne 'pr') { throw }
           if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
           if ("$(.\bin\ci-info pr:base:branch)" -ne $Env:GITHUB_BASE_REF) { throw }
           if ("$(.\bin\ci-info pr:base:sha1)" -ne $Env:EXPECTED_BASE_SHA1) { throw }
