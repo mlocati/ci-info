@@ -152,6 +152,15 @@ Print the SHA-1 of the last commit in the pull request branch
 # pr:range
 Print the commit range of pull request events (example: 123456abcded...abcded123456)
 
+# push:branch
+Print the name of the branch affected by a push event
+
+# push:prev:sha1
+Print the SHA-1 of the commit prior to the last commit for a push event
+
+# push:range
+Print the commit range of push events (example: 123456abcded...abcded123456)
+
 # tag:name
 Print the tag name (for tag jobs)
 
