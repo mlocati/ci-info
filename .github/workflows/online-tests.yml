@@ -4,8 +4,9 @@ on:
   create:
   pull_request:
   push:
-   schedule:
-    - cron:  '0 8 * * *'
+    branches: '*'
+  schedule:
+  - cron: '0 8 * * *'
   repository_dispatch:
 
 jobs:
