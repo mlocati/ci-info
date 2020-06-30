@@ -57,6 +57,9 @@ jobs:
       - name: Check scheduled events
         if: github.event_name == 'schedule'
         run: ./test/online/cron "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}"
+      - name: List environment variables
+        if: ${{ failure() }}
+        run: set | grep -E '^(GITHUB|CI)'
   test_windows:
     strategy:
       matrix:
@@ -103,3 +106,6 @@ jobs:
       - name: Check scheduled events
         if: github.event_name == 'schedule'
         run: .\test\online\cron.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','')
+      - name: List environment variables
+        if: ${{ failure() }}
+        run: 'Get-ChildItem -LiteralPath Env: | Where-Object { $_.Name -match "^(GITHUB|CI)" }'
