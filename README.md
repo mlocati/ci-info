@@ -164,6 +164,12 @@ Print the commit range of push events (example: 123456abcded...abcded123456)
 # tag:name
 Print the tag name (for tag jobs)
 
+# manual:branch
+Print the current branch in a manually-triggered job
+
+# scheduled:branch
+Print the current branch in a scheduled job
+
 Exit code:
 0: success
 1: failure
