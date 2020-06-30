@@ -132,7 +132,7 @@ Possible results are:
 Print the current operation type.
 Possible results are:
 - manual
-- pull-request
+- pr
 - push
 - scheduled
 - tag
