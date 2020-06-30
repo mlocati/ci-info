@@ -149,6 +149,11 @@ Print the SHA-1 of the last commit in the target branch
 # pr:head:sha1
 Print the SHA-1 of the last commit in the pull request branch
 
+# pr:wrongsha1
+Print the wrong SHA-1 of the merge commit of a pull request event as defined by the current environment.
+For example, the TRAVIS_COMMIT environment variable defined in TravisCI may be wrong (see https://travis-ci.community/t/travis-commit-is-not-the-commit-initially-checked-out/3775 )
+If there merge commit SHA-1 is correct, nothing gets printed out. 
+
 # pr:range
 Print the commit range of pull request events (example: 123456abcded...abcded123456)
 
