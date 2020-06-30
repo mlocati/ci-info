@@ -56,7 +56,7 @@ if test -z "$expectedBaseRangeFailure"; then
     printf 'done (%s).\n' "$baseSha1"
     printf 'Checking previous commit SHA-1... '
     if test ${#expectedBaseSHA1} -lt 40; then
-        if test "${baseSha1#$expectedBaseSHA1*}" -eq "$baseSha1"; then
+        if test "${baseSha1#$expectedBaseSHA1*}" = "$baseSha1"; then
             printf "failed (expected '%s', got '%s')\n" "$expectedBaseSHA1" "$baseSha1" >&2
             exit 1
         fi
