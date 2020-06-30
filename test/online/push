@@ -55,9 +55,16 @@ if test -z "$expectedBaseRangeFailure"; then
     fi
     printf 'done (%s).\n' "$baseSha1"
     printf 'Checking previous commit SHA-1... '
-    if test "$baseSha1" != "$expectedBaseSHA1"; then
-        printf "failed (expected '%s', got '%s')\n" "$expectedBaseSHA1" "$baseSha1" >&2
-        exit 1
+    if test ${#expectedBaseSHA1} -lt 40; then
+        if test "${baseSha1#$expectedBaseSHA1*}" -eq "$baseSha1"; then
+            printf "failed (expected '%s', got '%s')\n" "$expectedBaseSHA1" "$baseSha1" >&2
+            exit 1
+        fi
+    else
+        if test "$baseSha1" != "$expectedBaseSHA1"; then
+            printf "failed (expected '%s', got '%s')\n" "$expectedBaseSHA1" "$baseSha1" >&2
+            exit 1
+        fi
     fi
     printf 'passed.\n'
 
@@ -68,8 +75,8 @@ if test -z "$expectedBaseRangeFailure"; then
     fi
     printf 'done (%s).\n' "$range"
     printf 'Checking commit range... '
-    if test "$range" != "$expectedBaseSHA1...$expectedHeadSHA1"; then
-        printf "failed (expected '%s', got '%s')\n" "$expectedBaseSHA1...$expectedHeadSHA1" "$range" >&2
+    if test "$range" != "$baseSha1...$expectedHeadSHA1"; then
+        printf "failed (expected '%s', got '%s')\n" "$baseSha1...$expectedHeadSHA1" "$range" >&2
         exit 1
     fi
     printf 'passed.\n'
