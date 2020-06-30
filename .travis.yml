@@ -14,7 +14,7 @@ matrix:
       script: |
         printf 'Retrieving driver... '
         driver="$(./bin/ci-info driver)"
-        printf ' done(%s)\n' "$driver"
+        printf ' done (%s)\n' "$driver"
         printf 'Checking driver... '
         test "$driver" = 'travis-ci'
         printf 'passed.\n'
@@ -119,7 +119,7 @@ matrix:
         event="$(./bin/ci-info event)"
         printf ' done (%s)\n' "$event"
         printf 'Checking event type... '
-        test "$event" = 'scheduled'
+        test "$event" = 'cron'
         printf 'passed.\n'
         printf 'Retrieving last commit SHA-1... '
         sha1="$(./bin/ci-info sha1)"
@@ -128,7 +128,7 @@ matrix:
         test "$sha1" = "$TRAVIS_COMMIT"
         printf 'passed.\n'
         printf 'Retrieving branch name... '
-        branch="$(./bin/ci-info scheduled:branch)"
+        branch="$(./bin/ci-info cron:branch)"
         printf ' done (%s)\n' "$branch"
         printf 'Checking branch name... '
         test "$branch" = "$TRAVIS_BRANCH"
