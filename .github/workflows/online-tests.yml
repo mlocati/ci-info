@@ -50,7 +50,7 @@ jobs:
         run: ./test/online/push "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}" "$EXPECTED_PREV_SHA1" ''
       - name: Check tag creation
         if: github.event_name == 'create'
-        run: ./test/online/tag "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}"
+        run: ./test/online/tag "$GITHUB_SHA" "${GITHUB_REF#refs/tags/}"
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
         run: ./test/online/manual "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}"
@@ -96,7 +96,7 @@ jobs:
         run: .\test\online\push.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','') $Env:EXPECTED_PREV_SHA1 ''
       - name: Check tag creation
         if: github.event_name == 'create'
-        run: .\test\online\tag.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','')
+        run: .\test\online\tag.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/tags/','')
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
         run: .\test\online\manual.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','')
