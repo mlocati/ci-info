@@ -131,11 +131,11 @@ Possible results are:
 # event
 Print the current operation type.
 Possible results are:
-- manual
-- pr
-- push
-- scheduled
-- tag
+- manual: Manually triggered event (API calls, repository_dispatch events, forced rebuilds, ...)
+- pr: Pull request event
+- push: Push event
+- scheduled: Scheduled event
+- tag: Tag creation event
 
 # sha1
 Print the SHA-1 of the most recent commit (it's the merge commit in case of pull requests)
