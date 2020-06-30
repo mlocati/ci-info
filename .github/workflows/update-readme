@@ -67,14 +67,6 @@ if test -z "$helpText"; then
 fi
 echo 'passed.'
 
-printf 'Reading README.md... '
-originalReadme="$(cat ./README.md)"
-if test -z "$originalReadme"; then
-    echo 'Failed to read README.md' >&2
-    exit 1
-fi
-echo 'done.'
-
 echo 'Parsing README.md:'
 BACKTICKS='```'
 NEWLINE='
