@@ -4,6 +4,7 @@
 use CIInfo\DriverList;
 use CIInfo\State;
 use CIInfo\StateFactory;
+use CIInfo\State\PushWithoutBaseCommit;
 
 function run(): void
 {
@@ -252,6 +253,45 @@ function getAvailableCommands(): array
                     $state = $stateFactory->getCurrentState();
                     if ($state->getEvent() !== State::EVENT_PULLREQUEST) {
                         throw new RuntimeException('The current job is not for a pull request.');
+                    }
+                    echo $state->getCommitRange(), "\n";
+                },
+            ],
+            'push:branch' => [
+                'description' => "Print the name of the branch affected by a push event",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_PUSH) {
+                        throw new RuntimeException('The current job is not for a push.');
+                    }
+                    echo $state->getBranch(), "\n";
+                },
+            ],
+            'push:prev:sha1' => [
+                'description' => "Print the SHA-1 of the commit prior to the last commit for a push event",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_PUSH) {
+                        throw new RuntimeException('The current job is not for a push.');
+                    }
+                    if ($state instanceof PushWithoutBaseCommit) {
+                        throw new RuntimeException($state->describeWhiBaseCommitIsUnavailable());
+                    }
+                    echo $state->getBaseCommitSha1(), "\n";
+                },
+            ],
+            'push:range' => [
+                'description' => "Print the commit range of push events (example: 123456abcded...abcded123456)",
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_PUSH) {
+                        throw new RuntimeException('The current job is not for a push.');
+                    }
+                    if ($state instanceof PushWithoutBaseCommit) {
+                        throw new RuntimeException($state->describeWhiBaseCommitIsUnavailable());
                     }
                     echo $state->getCommitRange(), "\n";
                 },

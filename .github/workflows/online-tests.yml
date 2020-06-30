@@ -27,13 +27,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          tools: 'composer:v1'
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Install dependencies
-        run: composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
       - name: Configure environment
         run: |
           set -o errexit
@@ -54,11 +51,27 @@ jobs:
           range="$(./bin/ci-info pr:range)"
           echo "range='$range'"
           php -r 'exit(preg_match("/^[0-9a-f]{40}\.\.\.[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$range"
-      - name: Check push events
+      - name: Check push events (without GITHUB_CONTEXT)
         if: github.event_name == 'push'
         run: |
           test "$(./bin/ci-info event)" = 'push'
           test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
+          test "refs/heads/$(./bin/ci-info push:branch)" = "$GITHUB_REF"
+          error="$(./bin/ci-info push:prev:sha1 2>&1 1>/dev/null || true)"
+          test -n "$(printf '%s' "$error" | grep 'pass the github state to the build job by setting a GITHUB_CONTEXT environment variable')"
+          error="$(./bin/ci-info push:range 2>&1 1>/dev/null || true)"
+          test -n "$(printf '%s' "$error" | grep 'pass the github state to the build job by setting a GITHUB_CONTEXT environment variable')"
+      - name: Check push events (with GITHUB_CONTEXT)
+        if: github.event_name == 'push'
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          EXPECTED_PREV_SHA1: ${{ github.event.before }}
+        run: |
+          test "$(./bin/ci-info event)" = 'push'
+          test "$(./bin/ci-info sha1)" = "$GITHUB_SHA"
+          test "refs/heads/$(./bin/ci-info push:branch)" = "$GITHUB_REF"
+          test "$(./bin/ci-info push:prev:sha1)" = "$EXPECTED_PREV_SHA1"
+          test "$(./bin/ci-info push:range)" = "$EXPECTED_PREV_SHA1...$GITHUB_SHA"
       - name: Check tag creation
         if: github.event_name == 'create'
         run: |
@@ -91,13 +104,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          tools: 'composer:v1'
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Install dependencies
-        run: composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
       - name: Configure environment
         run: |
           $ErrorActionPreference = 'stop'
@@ -117,11 +127,31 @@ jobs:
           if ("$(.\bin\ci-info pr:head:sha1)" -ne $Env:EXPECTED_HEAD_SHA1) { throw }
           $range="$(.\bin\ci-info pr:range)"
           if (-not($range -match '^[a-f0-9]{40}\.\.\.[a-f0-9]{40}$')) { throw "Invalid range: $range" }
-      - name: Check push events
+      - name: Check push events (without GITHUB_CONTEXT)
         if: github.event_name == 'push'
         run: |
           if ("$(.\bin\ci-info event)" -ne 'push') { throw }
           if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
+          if ("refs/heads/$(.\bin\ci-info push:branch)" -ne $Env:GITHUB_REF) { throw }
+          $exception=$null
+          try { .\bin\ci-info push:prev:sha1 2>&1} catch { $exception=$_ }
+          if ($null -eq $exception) { throw 'Expected exception' }
+          if (-not($exception.Exception.Message -like '*no built-in environment variables in GitHub Actions holding*')) { throw $exception }
+          $exception=$null
+          try { .\bin\ci-info push:range 2>&1} catch { $exception=$_ }
+          if ($null -eq $exception) { throw 'Expected exception' }
+          if (-not($exception.Exception.Message -like '*no built-in environment variables in GitHub Actions holding*')) { throw $exception }
+      - name: Check push events (with GITHUB_CONTEXT)
+        if: github.event_name == 'push'
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          EXPECTED_PREV_SHA1: ${{ github.event.before }}
+        run: |
+          if ("$(.\bin\ci-info event)" -ne 'push') { throw }
+          if ("$(.\bin\ci-info sha1)" -ne $Env:GITHUB_SHA) { throw }
+          if ("refs/heads/$(.\bin\ci-info push:branch)" -ne $Env:GITHUB_REF) { throw }
+          if ("$(.\bin\ci-info push:prev:sha1)" -ne $Env:EXPECTED_PREV_SHA1) { throw }
+          if ("$(.\bin\ci-info push:range)" -ne "$Env:EXPECTED_PREV_SHA1...$Env:GITHUB_SHA") { throw }
       - name: Check tag creation
         if: github.event_name == 'create'
         run: |

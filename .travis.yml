@@ -4,23 +4,34 @@ language: php
 php: '7.2'
 before_install:
   - phpenv config-rm xdebug.ini || true
-install:
-  - composer install --no-dev --no-progress --no-suggest --classmap-authoritative --no-ansi --no-interaction
 after_failure:
   - set | grep -E '^(TRAVIS|CI)'
+  - git log --format=oneline --max-count=20
 matrix:
   fast_finish: true
   include:
     - name: Test detected driver
-      script: test "$(./bin/ci-info driver)" = 'travis-ci'
+      script: |
+        printf 'Retrieving driver... '
+        driver="$(./bin/ci-info driver)"
+        printf ' done(%s)\n' "$driver"
+        printf 'Checking driver... '
+        test "$driver" = 'travis-ci'
+        printf 'passed.\n'
     - name: Test pull request events
       if: type = pull_request
       script: |
+        echo 'Testing event type'
         test "$(./bin/ci-info event)" = 'pull-request'
+        echo 'Testing last commit SHA-1'
         test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
+        echo 'Testing base branch'
         test "$(./bin/ci-info pr:base:branch)" = "$TRAVIS_BRANCH"
+        echo 'Retrieving base SHA-1'
         baseSha1="$(./bin/ci-info pr:base:sha1)"
+        echo 'Retrieving head SHA-1'
         headSha1="$(./bin/ci-info pr:head:sha1)"
+        echo 'Retrieving commit range'
         range="$(./bin/ci-info pr:range)"
         php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$baseSha1"
         php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$headSha1"
@@ -32,21 +43,65 @@ matrix:
     - name: Test push events
       if: type = push AND tag is blank
       script: |
-        test "$(./bin/ci-info event)" = 'push'
-        test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
+        printf 'Retrieving event type... '
+        event="$(./bin/ci-info event)"
+        printf ' done (%s)\n' "$event"
+        printf 'Checking event type... '
+        test "$event" = 'push'
+        printf 'passed.\n'
+        printf 'Retrieving last commit SHA-1... '
+        sha1="$(./bin/ci-info sha1)"
+        printf ' done (%s)\n' "$sha1"
+        printf 'Checking last commit SHA-1... '
+        test "$sha1" = "$TRAVIS_COMMIT"
+        printf 'passed.\n'
+        printf 'Retrieving branch name... '
+        branch="$(./bin/ci-info push:branch)"
+        printf ' done (%s)\n' "$branch"
+        printf 'Checking branch name... '
+        test "$branch" = "$TRAVIS_BRANCH"
+        printf 'passed.\n'
+        printf 'Retrieving previous commit SHA-1... '
+        prevSha1="$(./bin/ci-info push:prev:sha1)"
+        printf ' done (%s)\n' "$prevSha1"
+        printf 'Checking previous commit SHA-1 format... '
+        php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$prevSha1"
+        printf 'passed.\n'
+        if test -n "${TRAVIS_COMMIT_RANGE:-}"; then
+          printf 'Checking previous commit SHA-1... '
+          test "$prevSha1...$TRAVIS_COMMIT" = "$TRAVIS_COMMIT_RANGE"
+          printf 'passed.\n'
+        fi
+        printf 'Retrieving commit range... '
+        range="$(./bin/ci-info push:range)"
+        printf ' done (%s)\n' "$range"
+        printf 'Checking commit range format... '
+        php -r 'exit(preg_match("/^[0-9a-f]{40}\.\.\.[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$range"
+        printf 'passed.\n'
+        if test -n "${TRAVIS_COMMIT_RANGE:-}"; then
+          printf 'Checking commit range... '
+          test "$range" = "$TRAVIS_COMMIT_RANGE"
+          printf 'passed.\n'
+        fi
     - name: Test tag events
       if: tag is present
       script: |
+        echo 'Testing event type'
         test "$(./bin/ci-info event)" = 'tag'
+        echo 'Testing last commit SHA-1'
         test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
         test "$(./bin/ci-info tag:name)" = "$TRAVIS_TAG"
     - name: Test API events
       if: type = api
       script: |
+        echo 'Testing event type'
         test "$(./bin/ci-info event)" = 'manual'
+        echo 'Testing last commit SHA-1'
         test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
     - name: Test cron events
       if: type = cron
       script: |
+        echo 'Testing event type'
         test "$(./bin/ci-info event)" = 'scheduled'
+        echo 'Testing last commit SHA-1'
         test "$(./bin/ci-info sha1)" = "$TRAVIS_COMMIT"
