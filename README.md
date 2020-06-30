@@ -131,10 +131,10 @@ Possible results are:
 # event
 Print the current operation type.
 Possible results are:
+- cron: Scheduled event
 - manual: Manually triggered event (API calls, repository_dispatch events, forced rebuilds, ...)
 - pr: Pull request event
 - push: Push event
-- scheduled: Scheduled event
 - tag: Tag creation event
 
 # sha1
@@ -167,7 +167,7 @@ Print the tag name (for tag jobs)
 # manual:branch
 Print the current branch in a manually-triggered job
 
-# scheduled:branch
+# cron:branch
 Print the current branch in a scheduled job
 
 Exit code:
