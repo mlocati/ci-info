@@ -140,15 +140,11 @@ class TravisCI implements Driver
         $rawRange = $env->get('TRAVIS_COMMIT_RANGE');
         if ($rawRange === '') {
             // See https://github.com/travis-ci/docs-travis-ci-com/commit/2b9357a1701c4e33d364a41c8686db05751448ee
-            $git = new Git($this->getProjectRootDir($env));
-            $baseCommitSha1 = $git->getLastCommitSHA1("{$actualLastCommitSha1}~");
-            if (!preg_match('/^([0-9a-fA-F]{40})$/', $baseCommitSha1)) {
-                return new State\Push(
-                    $branch,
-                    $actualLastCommitSha1,
-                    $baseCommitSha1
-                );
-            }
+            return new State\PushWithoutBaseCommit(
+                $branch,
+                $actualLastCommitSha1,
+                new Exception\IncompleteEnvironmentException('This is a branch creation event: no commit range is available.')
+            );
         }
         $matches = null;
         if (!preg_match('/^([0-9a-fA-F]{6,40})\.\.\.([0-9a-fA-F]{6,40})$/', $rawRange, $matches)) {
