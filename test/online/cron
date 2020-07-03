@@ -37,7 +37,7 @@ branch="$(./bin/ci-info cron:branch)"
 if test -z "$branch"; then
     exit 1
 fi
-printf 'done (%s).\n' "$tag"
+printf 'done (%s).\n' "$branch"
 printf 'Checking branch name... '
 if test "$branch" != "$expectedBranch"; then
     printf "failed (expected '%s', got '%s')\n" "$expectedBranch" "$branch" >&2
