@@ -143,7 +143,7 @@ class TravisCI implements Driver
             return new State\PushWithoutBaseCommit(
                 $branch,
                 $actualLastCommitSha1,
-                new Exception\IncompleteEnvironmentException('This is a branch creation event: no commit range is available.')
+                new Exception\PushToNewBranchException()
             );
         }
         $matches = null;

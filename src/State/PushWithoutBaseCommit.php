@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CIInfo\State;
 
-use CIInfo\Exception\IncompleteEnvironmentException;
+use CIInfo\Exception\PushWithoutBaseCommitException;
 
 /**
  * The state representing a push build when the base commit is not available.
@@ -12,16 +12,16 @@ use CIInfo\Exception\IncompleteEnvironmentException;
 class PushWithoutBaseCommit extends Push
 {
     /**
-     * @var \CIInfo\Exception\IncompleteEnvironmentException
+     * @var \CIInfo\Exception\PushWithoutBaseCommitException
      */
     private $baseCommitUnavilableDescription;
 
     /**
      * @param string $branch the name of the branch affected by the push
      * @param string $lastCommitSha1 the SHA-1 of the head commit (that is, the last commit of the push)
-     * @param \CIInfo\Exception\IncompleteEnvironmentException a description about the problem detecting the base commit SHA-1
+     * @param \CIInfo\Exception\PushWithoutBaseCommitException a description about the problem detecting the base commit SHA-1
      */
-    public function __construct(string $branch, string $lastCommitSha1, IncompleteEnvironmentException $baseCommitUnavilableDescription)
+    public function __construct(string $branch, string $lastCommitSha1, PushWithoutBaseCommitException $baseCommitUnavilableDescription)
     {
         parent::__construct($branch, $lastCommitSha1, '');
         $this->baseCommitUnavilableDescription = $baseCommitUnavilableDescription;

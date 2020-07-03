@@ -90,7 +90,7 @@ class GithubActions implements Driver
                     return new State\PushWithoutBaseCommit(
                         $matches[1],
                         $sha1,
-                        new Exception\IncompleteEnvironmentException('This is a branch creation event: no commit range is available.')
+                        new Exception\PushToNewBranchException()
                     );
                 }
                 throw new Exception\UnexpectedEnvironmentVariableValueException('GITHUB_REF', $ref);
