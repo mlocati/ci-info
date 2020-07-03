@@ -80,10 +80,20 @@ class GithubActions implements Driver
             );
         }
         $matches = null;
-        if ($eventName === 'create' && preg_match('%^refs/tags/(.+)%', $env->get('GITHUB_REF'), $matches)) {
-            return new State\Tag($sha1, $matches[1]);
-        }
         switch ($eventName) {
+            case 'create':
+                $ref = $env->getNotEmpty('GITHUB_REF');
+                if (preg_match('%^refs/tags/(.+)%', $ref, $matches)) {
+                    return new State\Tag($sha1, $matches[1]);
+                }
+                if (preg_match('%^refs/heads/(.+)%', $ref, $matches)) {
+                    return new State\PushWithoutBaseCommit(
+                        $matches[1],
+                        $sha1,
+                        new Exception\IncompleteEnvironmentException('This is a branch creation event: no commit range is available.')
+                    );
+                }
+                throw new Exception\UnexpectedEnvironmentVariableValueException('GITHUB_REF', $ref);
             case 'push':
                 return $this->createPushState($env);
             case 'schedule':
