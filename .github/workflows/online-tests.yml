@@ -49,8 +49,11 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           EXPECTED_PREV_SHA1: ${{ github.event.before }}
         run: ./test/online/push "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}" "$EXPECTED_PREV_SHA1" ''
+      - name: Check branch creation
+        if: github.event_name == 'create' && github.event.ref_type == 'branch'
+        run: ./test/online/push "$GITHUB_SHA" "${GITHUB_REF#refs/heads/}" '' 'This is a branch creation event'
       - name: Check tag creation
-        if: github.event_name == 'create'
+        if: github.event_name == 'create' && github.event.ref_type == 'tag'
         run: ./test/online/tag "$GITHUB_SHA" "${GITHUB_REF#refs/tags/}"
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
@@ -61,6 +64,11 @@ jobs:
       - name: List environment variables
         if: ${{ failure() }}
         run: set | grep -E '^(GITHUB|CI)'
+      - name: Display GitHub context
+        if: ${{ failure() }}
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: printf '%s' "$GITHUB_CONTEXT"
   test_windows:
     strategy:
       matrix:
@@ -98,8 +106,11 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           EXPECTED_PREV_SHA1: ${{ github.event.before }}
         run: .\test\online\push.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','') $Env:EXPECTED_PREV_SHA1 ''
+      - name: Check branch creation
+        if: github.event_name == 'create' && github.event.ref_type == 'branch'
+        run: .\test\online\push.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/heads/','') '' 'This is a branch creation event'
       - name: Check tag creation
-        if: github.event_name == 'create'
+        if: github.event_name == 'create' && github.event.ref_type == 'tag'
         run: .\test\online\tag.ps1 $Env:GITHUB_SHA $($Env:GITHUB_REF -replace '^refs/tags/','')
       - name: Check repository_dispatch events
         if: github.event_name == 'repository_dispatch'
@@ -110,3 +121,8 @@ jobs:
       - name: List environment variables
         if: ${{ failure() }}
         run: 'Get-ChildItem -LiteralPath Env: | Where-Object { $_.Name -match "^(GITHUB|CI)" }'
+      - name: Display GitHub context
+        if: ${{ failure() }}
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: Write-Host $Env:GITHUB_CONTEXT
