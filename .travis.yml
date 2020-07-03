@@ -19,7 +19,11 @@ matrix:
       if: type = push AND tag is blank
       script: |
         ./test/online/driver travis-ci
-        ./test/online/push "$TRAVIS_COMMIT" "$TRAVIS_BRANCH" "${TRAVIS_COMMIT_RANGE%...*}" ''
+        if test -n "${TRAVIS_COMMIT_RANGE:-}"; then
+          ./test/online/push "$TRAVIS_COMMIT" "$TRAVIS_BRANCH" "${TRAVIS_COMMIT_RANGE%...*}" ''
+        else
+          ./test/online/push "$TRAVIS_COMMIT" "$TRAVIS_BRANCH" '' 'This is a branch creation event'
+        fi
     - name: Test tag events
       if: tag is present
       script: |
