@@ -193,7 +193,7 @@ This library is tested against two types of cases:
 - Offline tests, implemented as GitHub Actions and managed by phpunit, which test the library against well-known environment statuses of the supported CI environment
   - Status: [![Offline Tests](https://github.com/mlocati/ci-info/workflows/Offline%20Tests/badge.svg)](https://github.com/mlocati/ci-info/actions?query=workflow%3A%22Offline+Tests%22)
 - Online tests, executed directly in every supported CI enviromnent
-  - AppVeyor: [![AppVeyor Online Tests](https://ci.appveyor.com/api/projects/status/g1d445s45p8lrs2t?svg=true)](https://ci.appveyor.com/project/mlocati/ci-info/history)
+  - AppVeyor: [![AppVeyor Online Tests](https://ci.appveyor.com/api/projects/status/x5j0frep2cr8d2i3/branch/master?svg=true)](https://ci.appveyor.com/project/mlocati/ci-info/history)
   - GitHub Actions: [![GitHub Actions Online Tests](https://github.com/mlocati/ci-info/workflows/Online%20Tests/badge.svg)](https://github.com/mlocati/ci-info/actions?query=workflow%3A%22Online+Tests%22)
   - TravisCI:
     - Push tests: [![TravisCI Online Tests for pushes](https://travis-ci.org/mlocati/ci-info.svg?branch=master)](https://travis-ci.org/github/mlocati/ci-info/branches)  
