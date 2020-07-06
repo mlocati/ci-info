@@ -3,8 +3,8 @@
 
 use CIInfo\DriverList;
 use CIInfo\State;
-use CIInfo\StateFactory;
 use CIInfo\State\PushWithoutBaseCommit;
+use CIInfo\StateFactory;
 
 function run(): void
 {
@@ -182,7 +182,7 @@ function getAvailableCommands(): array
                 continue;
             }
             $stateDescription = getStateDescription($constantValue);
-            $stateValues[] = $constantValue . ($stateDescription === '' ? '' : ": {$stateDescription}"); 
+            $stateValues[] = $constantValue . ($stateDescription === '' ? '' : ": {$stateDescription}");
         }
         sort($stateValues);
         $stateValues = '- ' . implode("\n- ", $stateValues);
@@ -215,7 +215,7 @@ function getAvailableCommands(): array
                 },
             ],
             State::EVENT_PULLREQUEST . ':base:branch' => [
-                'description' => "Print the target branch of a pull request",
+                'description' => 'Print the target branch of a pull request',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -226,7 +226,7 @@ function getAvailableCommands(): array
                 },
             ],
             State::EVENT_PULLREQUEST . ':base:sha1' => [
-                'description' => "Print the SHA-1 of the last commit in the target branch",
+                'description' => 'Print the SHA-1 of the last commit in the target branch',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -237,7 +237,7 @@ function getAvailableCommands(): array
                 },
             ],
             State::EVENT_PULLREQUEST . ':head:sha1' => [
-                'description' => "Print the SHA-1 of the last commit in the pull request branch",
+                'description' => 'Print the SHA-1 of the last commit in the pull request branch',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -266,7 +266,7 @@ EOT
                 },
             ],
             State::EVENT_PULLREQUEST . ':range' => [
-                'description' => "Print the commit range of pull request events (example: 123456abcded...abcded123456)",
+                'description' => 'Print the commit range of pull request events (example: 123456abcded...abcded123456)',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -277,7 +277,7 @@ EOT
                 },
             ],
             State::EVENT_PUSH . ':branch' => [
-                'description' => "Print the name of the branch affected by a push event",
+                'description' => 'Print the name of the branch affected by a push event',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -306,7 +306,7 @@ EOT
                 },
             ],
             State::EVENT_PUSH . ':prev:sha1' => [
-                'description' => "Print the SHA-1 of the commit prior to the last commit for a push event",
+                'description' => 'Print the SHA-1 of the commit prior to the last commit for a push event',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -320,7 +320,7 @@ EOT
                 },
             ],
             State::EVENT_PUSH . ':range' => [
-                'description' => "Print the commit range of push events (example: 123456abcded...abcded123456)",
+                'description' => 'Print the commit range of push events (example: 123456abcded...abcded123456)',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -334,7 +334,7 @@ EOT
                 },
             ],
             State::EVENT_TAG . ':name' => [
-                'description' => "Print the tag name (for tag jobs)",
+                'description' => 'Print the tag name (for tag jobs)',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -345,7 +345,7 @@ EOT
                 },
             ],
             State::EVENT_MANUAL . ':branch' => [
-                'description' => "Print the current branch in a manually-triggered job",
+                'description' => 'Print the current branch in a manually-triggered job',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -356,7 +356,7 @@ EOT
                 },
             ],
             State::EVENT_SCHEDULED . ':branch' => [
-                'description' => "Print the current branch in a scheduled job",
+                'description' => 'Print the current branch in a scheduled job',
                 'exec' => static function (): void {
                     $stateFactory = new StateFactory();
                     $state = $stateFactory->getCurrentState();
@@ -381,6 +381,7 @@ function getStateDescription(string $id): string
         State::EVENT_MANUAL => 'Manually triggered event (API calls, repository_dispatch events, forced rebuilds, ...)',
         State::EVENT_SCHEDULED => 'Scheduled event',
     ];
+
     return $map[$id] ?? '';
 }
 
