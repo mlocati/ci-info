@@ -1,5 +1,5 @@
-param (
-    [Parameter(Mandatory=$true)][string] $expectedDriver
+﻿param (
+    [Parameter(Mandatory = $true)][string] $expectedDriver
 )
 
 $ErrorActionPreference = 'Stop'
