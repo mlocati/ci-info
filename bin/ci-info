@@ -287,6 +287,24 @@ EOT
                     echo $state->getBranch(), "\n";
                 },
             ],
+            State::EVENT_PUSH . ':range:has' => [
+                'description' => <<<'EOT'
+Check if the commit range is available.
+In case it's not available, the exit code is 1, otherwise it's 0.
+The reason why the range is not available is printed out to the standard error (use -q to prevent that).
+EOT
+                ,
+                'exec' => static function (): void {
+                    $stateFactory = new StateFactory();
+                    $state = $stateFactory->getCurrentState();
+                    if ($state->getEvent() !== State::EVENT_PUSH) {
+                        throw new RuntimeException('The current job is not for a push.');
+                    }
+                    if ($state instanceof PushWithoutBaseCommit) {
+                        throw new RuntimeException($state->describeWhiBaseCommitIsUnavailable());
+                    }
+                },
+            ],
             State::EVENT_PUSH . ':prev:sha1' => [
                 'description' => "Print the SHA-1 of the commit prior to the last commit for a push event",
                 'exec' => static function (): void {

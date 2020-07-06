@@ -140,23 +140,19 @@ class TravisCI implements Driver
         $rawRange = $env->get('TRAVIS_COMMIT_RANGE');
         if ($rawRange === '') {
             // See https://github.com/travis-ci/docs-travis-ci-com/commit/2b9357a1701c4e33d364a41c8686db05751448ee
-            return new State\PushWithoutBaseCommit(
-                $branch,
-                $actualLastCommitSha1,
-                new Exception\IncompleteEnvironmentException('This is a branch creation event: no commit range is available.')
-            );
+            $rawRange = "{$actualLastCommitSha1}^...{$actualLastCommitSha1}";
         }
         $matches = null;
-        if (!preg_match('/^([0-9a-fA-F]{6,40})\.\.\.([0-9a-fA-F]{6,40})$/', $rawRange, $matches)) {
+        if (!preg_match('/^([0-9a-fA-F]{6,40}([~|\^].*)?)\.\.\.([0-9a-fA-F]{6,40})$/', $rawRange, $matches)) {
             throw new Exception\UnexpectedEnvironmentVariableValueException('TRAVIS_COMMIT_RANGE', $rawRange);
         }
         $baseCommitSha1 = $matches[1];
-        $lastCommitSha1 = $matches[2];
+        $lastCommitSha1 = $matches[3];
         if (stripos($actualLastCommitSha1, $lastCommitSha1) !== 0) {
             throw new Exception\UnexpectedEnvironmentVariableValueException('TRAVIS_COMMIT_RANGE', $rawRange);
         }
         $lastCommitSha1 = $actualLastCommitSha1;
-        if (strlen($baseCommitSha1) < 40) {
+        if (strlen($baseCommitSha1) !== 40 || $matches[2] !== '') {
             $git = new Git($this->getProjectRootDir($env));
             try {
                 $baseCommitSha1 = $git->expandShortSha1($baseCommitSha1);
