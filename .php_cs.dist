@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 if (!class_exists('PhpCsFixer\Config', true)) {
     fwrite(STDERR, "Your php-cs-version is outdated: please upgrade it.\n");
     die(16);
@@ -441,6 +443,12 @@ return PhpCsFixer\Config::create()
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
-            ->in(__DIR__)
-        )
+            ->in([
+                __DIR__ . '/src',
+                __DIR__ . '/test',
+            ])
+            ->append([__DIR__ . '/autoload.php'])
+            ->append([__DIR__ . '/bin/ci-info'])
+            ->append([__DIR__ . '/.php_cs.dist'])
+    )
 ;
