@@ -160,6 +160,11 @@ Print the commit range of pull request events (example: 123456abcded...abcded123
 # push:branch
 Print the name of the branch affected by a push event
 
+# push:range:has
+Check if the commit range is available.
+In case it's not available, the exit code is 1, otherwise it's 0.
+The reason why the range is not available is printed out to the standard error (use -q to prevent that).
+
 # push:prev:sha1
 Print the SHA-1 of the commit prior to the last commit for a push event
 
