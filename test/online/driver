@@ -10,10 +10,10 @@ driver="$(./bin/ci-info driver)"
 if test -z "$driver"; then
     exit 1
 fi
-printf 'done (%s).\n' "$driver"
+printf 'done (%s).\\n' "$driver"
 printf 'Checking driver... '
 if test "$driver" != "$expectedDriver"; then
-    printf "failed (expected '%s', got '%s')\n" "$expectedDriver" "$driver" >&2
+    printf "failed (expected '%s', got '%s')\\n" "$expectedDriver" "$driver" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'

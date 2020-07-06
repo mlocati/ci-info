@@ -11,36 +11,36 @@ eventType="$(./bin/ci-info event)"
 if test -z "$eventType"; then
     exit 1
 fi
-printf 'done (%s).\n' "$eventType"
+printf 'done (%s).\\n' "$eventType"
 printf 'Checking event type... '
 if test "$eventType" != 'manual'; then
-    printf "failed (expected '%s', got '%s')\n" 'manual' "$eventType" >&2
+    printf "failed (expected '%s', got '%s')\\n" 'manual' "$eventType" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 printf 'Retrieving head commit SHA-1... '
 headSha1="$(./bin/ci-info sha1)"
 if test -z "$headSha1"; then
     exit 1
 fi
-printf 'done (%s).\n' "$headSha1"
+printf 'done (%s).\\n' "$headSha1"
 printf 'Checking head commit SHA-1... '
 if test "$headSha1" != "$expectedHeadSHA1"; then
-    printf "failed (expected '%s', got '%s')\n" "$expectedHeadSHA1" "$headSha1" >&2
+    printf "failed (expected '%s', got '%s')\\n" "$expectedHeadSHA1" "$headSha1" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 printf 'Retrieving branch name... '
 branch="$(./bin/ci-info manual:branch)"
 if test -z "$branch"; then
     exit 1
 fi
-printf 'done (%s).\n' "$tag"
+printf 'done (%s).\\n' "$branch"
 printf 'Checking branch name... '
 if test "$branch" != "$expectedBranch"; then
-    printf "failed (expected '%s', got '%s')\n" "$expectedBranch" "$branch" >&2
+    printf "failed (expected '%s', got '%s')\\n" "$expectedBranch" "$branch" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
