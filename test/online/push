@@ -13,39 +13,39 @@ eventType="$(./bin/ci-info event)"
 if test -z "$eventType"; then
     exit 1
 fi
-printf 'done (%s).\n' "$eventType"
+printf 'done (%s).\\n' "$eventType"
 printf 'Checking event type... '
 if test "$eventType" != 'push'; then
-    printf "failed (expected '%s', got '%s')\n" 'push' "$eventType" >&2
+    printf "failed (expected '%s', got '%s')\\n" 'push' "$eventType" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 printf 'Retrieving head commit SHA-1... '
 headSha1="$(./bin/ci-info sha1)"
 if test -z "$headSha1"; then
     exit 1
 fi
-printf 'done (%s).\n' "$headSha1"
+printf 'done (%s).\\n' "$headSha1"
 printf 'Checking head commit SHA-1... '
 if test "$headSha1" != "$expectedHeadSHA1"; then
-    printf "failed (expected '%s', got '%s')\n" "$expectedHeadSHA1" "$headSha1" >&2
+    printf "failed (expected '%s', got '%s')\\n" "$expectedHeadSHA1" "$headSha1" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 printf 'Retrieving branch name... '
 branch="$(./bin/ci-info push:branch)"
 if test -z "$branch"; then
     exit 1
 fi
-printf 'done (%s).\n' "$branch"
+printf 'done (%s).\\n' "$branch"
 printf 'Checking branch name... '
 if test "$branch" != "$expectedBranch"; then
-    printf "failed (expected '%s', got '%s')\n" "$expectedBranch" "$branch" >&2
+    printf "failed (expected '%s', got '%s')\\n" "$expectedBranch" "$branch" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 if test -z "$expectedBaseRangeFailure"; then
     printf 'Retrieving previous commit SHA-1... '
@@ -53,69 +53,69 @@ if test -z "$expectedBaseRangeFailure"; then
     if test -z "$baseSha1"; then
         exit 1
     fi
-    printf 'done (%s).\n' "$baseSha1"
+    printf 'done (%s).\\n' "$baseSha1"
     printf 'Checking previous commit SHA-1... '
     if test -n "$expectedBaseSHA1"; then
         if test ${#expectedBaseSHA1} -lt 40; then
             if test "${baseSha1#$expectedBaseSHA1*}" = "$baseSha1"; then
-                printf "failed (expected '%s', got '%s')\n" "$expectedBaseSHA1" "$baseSha1" >&2
+                printf "failed (expected '%s', got '%s')\\n" "$expectedBaseSHA1" "$baseSha1" >&2
                 exit 1
             fi
         else
             if test "$baseSha1" != "$expectedBaseSHA1"; then
-                printf "failed (expected '%s', got '%s')\n" "$expectedBaseSHA1" "$baseSha1" >&2
+                printf "failed (expected '%s', got '%s')\\n" "$expectedBaseSHA1" "$baseSha1" >&2
                 exit 1
             fi
         fi
     fi
-    printf 'passed.\n'
+    printf 'passed.\\n'
 
     printf 'Retrieving commit range... '
     range="$(./bin/ci-info push:range)"
     if test -z "$range"; then
         exit 1
     fi
-    printf 'done (%s).\n' "$range"
+    printf 'done (%s).\\n' "$range"
     printf 'Checking commit range... '
     if test "$range" != "$baseSha1...$expectedHeadSHA1"; then
-        printf "failed (expected '%s', got '%s')\n" "$baseSha1...$expectedHeadSHA1" "$range" >&2
+        printf "failed (expected '%s', got '%s')\\n" "$baseSha1...$expectedHeadSHA1" "$range" >&2
         exit 1
     fi
-    printf 'passed.\n'
+    printf 'passed.\\n'
 else
     printf 'Retrieving previous commit SHA-1... '
     failure="$(./bin/ci-info push:prev:sha1 -q 2>&1 || true)"
     if test -n "$failure"; then
-        printf "failed (expected failure, got '%s')\n" "$failure" >&2
+        printf "failed (expected failure, got '%s')\\n" "$failure" >&2
         exit 1
     fi
     failure="$(./bin/ci-info push:prev:sha1 2>&1 || true)"
     if test -z "$failure"; then
-        printf 'failed (expected failure message, got empty result)\n' >&2
+        printf 'failed (expected failure message, got empty result)\\n' >&2
         exit 1
     fi
-    printf 'correctly received failure message.\n'
+    printf 'correctly received failure message.\\n'
     printf 'Checking previous commit failure... '
     if test "${failure#*$expectedBaseRangeFailure}" = "$failure"; then
-        printf "failed ('%s' does not contain '%s')\n" "$failure" "$expectedBaseRangeFailure" >&2
+        printf "failed ('%s' does not contain '%s')\\n" "$failure" "$expectedBaseRangeFailure" >&2
     fi
-    printf 'passed.\n'
+    printf 'passed.\\n'
 
     printf 'Retrieving commit range... '
     failure="$(./bin/ci-info push:range -q 2>&1 || true)"
     if test -n "$failure"; then
-        printf "failed (expected failure, got '%s')\n" "$failure" >&2
+        printf "failed (expected failure, got '%s')\\n" "$failure" >&2
         exit 1
     fi
     failure="$(./bin/ci-info push:range 2>&1 || true)"
     if test -z "$failure"; then
-        printf 'failed (expected failure message, got empty result)\n' >&2
+        printf 'failed (expected failure message, got empty result)\\n' >&2
         exit 1
     fi
-    printf 'correctly received failure message.\n'
+    printf 'correctly received failure message.\\n'
     printf 'Checking commit range failure... '
     if test "${failure#*$expectedBaseRangeFailure}" = "$failure"; then
-        printf "failed ('%s' does not contain '%s')\n" "$failure" "$expectedBaseRangeFailure" >&2
+        printf "failed ('%s' does not contain '%s')\\n" "$failure" "$expectedBaseRangeFailure" >&2
     fi
-    printf 'passed.\n'
+    printf 'passed.\\n'
 fi

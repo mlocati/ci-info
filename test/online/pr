@@ -14,24 +14,24 @@ eventType="$(./bin/ci-info event)"
 if test -z "$eventType"; then
     exit 1
 fi
-printf 'done (%s).\n' "$eventType"
+printf 'done (%s).\\n' "$eventType"
 printf 'Checking event type... '
 if test "$eventType" != 'pr'; then
-    printf "failed (expected '%s', got '%s')\n" 'pr' "$eventType" >&2
+    printf "failed (expected '%s', got '%s')\\n" 'pr' "$eventType" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 printf 'Retrieving wrong merge SHA-1... '
 wrongMergeSHA1="$(./bin/ci-info pr:wrongsha1)"
-printf 'done (%s).\n' "$wrongMergeSHA1"
+printf 'done (%s).\\n' "$wrongMergeSHA1"
 if test -n "$wrongMergeSHA1"; then
     printf 'Checking wrong merge SHA-1... '
     if test "$wrongMergeSHA1" != "$expectedMergeSHA1"; then
-        printf "failed (expected '%s', got '%s')\n" "$expectedMergeSHA1" "$wrongMergeSHA1" >&2
+        printf "failed (expected '%s', got '%s')\\n" "$expectedMergeSHA1" "$wrongMergeSHA1" >&2
         exit 1
     fi
-    printf 'passed.\n'
+    printf 'passed.\\n'
 fi
 
 printf 'Retrieving correct merge SHA-1... '
@@ -39,76 +39,78 @@ mergeSHA1="$(./bin/ci-info sha1)"
 if test -z "$mergeSHA1"; then
     exit 1
 fi
-printf 'done (%s).\n' "$mergeSHA1"
+printf 'done (%s).\\n' "$mergeSHA1"
 printf 'Checking correct merge SHA-1... '
 if test -n "$wrongMergeSHA1"; then
+    # shellcheck disable=SC2016
     if ! php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$mergeSHA1"; then
-        printf 'failed (wrong syntax)\n' >&2
+        printf 'failed (wrong syntax)\\n' >&2
         exit 1
     fi
 else
     if test "$mergeSHA1" != "$expectedMergeSHA1"; then
-        printf "failed (expected '%s', got '%s')\n" "$expectedMergeSHA1" "$mergeSHA1" >&2
+        printf "failed (expected '%s', got '%s')\\n" "$expectedMergeSHA1" "$mergeSHA1" >&2
         exit 1
     fi
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 printf 'Retrieving base branch name... '
 baseBranch="$(./bin/ci-info pr:base:branch)"
 if test -z "$baseBranch"; then
     exit 1
 fi
-printf 'done (%s).\n' "$baseBranch"
+printf 'done (%s).\\n' "$baseBranch"
 printf 'Checking base branch name... '
 if test "$baseBranch" != "$expectedBaseBranch"; then
-    printf "failed (expected '%s', got '%s')\n" "$expectedBaseBranch" "$baseBranch" >&2
+    printf "failed (expected '%s', got '%s')\\n" "$expectedBaseBranch" "$baseBranch" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 printf 'Retrieving base branch SHA-1... '
 baseSHA1="$(./bin/ci-info pr:base:sha1)"
 if test -z "$baseSHA1"; then
     exit 1
 fi
-printf 'done (%s).\n' "$baseSHA1"
+printf 'done (%s).\\n' "$baseSHA1"
 printf 'Checking base branch SHA-1... '
 if test -n "$expectedBaseSHA1"; then
     if test "$baseSHA1" != "$expectedBaseSHA1"; then
-        printf "failed (expected '%s', got '%s')\n" "$expectedBaseSHA1" "$baseSHA1" >&2
+        printf "failed (expected '%s', got '%s')\\n" "$expectedBaseSHA1" "$baseSHA1" >&2
         exit 1
     fi
 else
+    # shellcheck disable=SC2016
     if ! php -r 'exit(preg_match("/^[0-9a-f]{40}$/i", $argv[1]) ? 0 : 1);' "$baseSHA1"; then
-        printf 'failed (wrong syntax)\n' >&2
+        printf 'failed (wrong syntax)\\n' >&2
         exit 1
     fi
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 printf 'Retrieving PR branch SHA-1... '
 headSHA1="$(./bin/ci-info pr:head:sha1)"
 if test -z "$headSHA1"; then
     exit 1
 fi
-printf 'done (%s).\n' "$headSHA1"
+printf 'done (%s).\\n' "$headSHA1"
 printf 'Checking PR branch SHA-1... '
 if test "$headSHA1" != "$expectedHeadSHA1"; then
-    printf "failed (expected '%s', got '%s')\n" "$expectedHeadSHA1" "$headSHA1" >&2
+    printf "failed (expected '%s', got '%s')\\n" "$expectedHeadSHA1" "$headSHA1" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'
 
 printf 'Retrieving PR range... '
 range="$(./bin/ci-info pr:range)"
 if test -z "$range"; then
     exit 1
 fi
-printf 'done (%s).\n' "$range"
+printf 'done (%s).\\n' "$range"
 printf 'Checking PR range... '
 if test "$range" != "$expectedRange"; then
-    printf "failed (expected '%s', got '%s')\n" "$expectedRange" "$range" >&2
+    printf "failed (expected '%s', got '%s')\\n" "$expectedRange" "$range" >&2
     exit 1
 fi
-printf 'passed.\n'
+printf 'passed.\\n'

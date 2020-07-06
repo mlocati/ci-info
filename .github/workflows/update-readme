@@ -68,6 +68,7 @@ fi
 echo 'passed.'
 
 echo 'Parsing README.md:'
+# shellcheck disable=SC2016
 BACKTICKS='```'
 NEWLINE='
 '
