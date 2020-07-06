@@ -44,3 +44,5 @@ jobs:
           fetch-depth: 1
       - name: Check with ShellCheck
         run: docker run --rm -v "$GITHUB_WORKSPACE:/app" -w /app koalaman/shellcheck:v0.7.1 .github/workflows/update-readme $(find ./test/online -type f ! -name "*.*")
+      - name: Check with shfmt
+        run: docker run --rm -v "$GITHUB_WORKSPACE:/app" -w /app mvdan/shfmt:v3.1.2 -d -ln=posix -i 4 -ci .github/workflows/update-readme $(find ./test/online -type f ! -name "*.*")
