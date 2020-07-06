@@ -441,6 +441,12 @@ return PhpCsFixer\Config::create()
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
-            ->in(__DIR__)
-        )
+            ->in([
+                __DIR__ . '/src',
+                __DIR__ . '/test',
+            ])
+            ->append([__DIR__ . '/autoload.php'])
+            ->append([__DIR__ . '/bin/ci-info'])
+            ->append([__DIR__ . '/.php_cs.dist'])
+    )
 ;
