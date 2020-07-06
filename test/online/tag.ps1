@@ -1,6 +1,6 @@
-param (
-    [Parameter(Mandatory=$true)][string] $expectedHeadSHA1,
-    [Parameter(Mandatory=$true)][string] $expectedTag
+﻿param (
+    [Parameter(Mandatory = $true)][string] $expectedHeadSHA1,
+    [Parameter(Mandatory = $true)][string] $expectedTag
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,7 +18,7 @@ if (-not($eventType -ceq 'tag')) {
 Write-Host 'passed.'
 
 Write-Host -NoNewline 'Retrieving head commit SHA-1... '
-$headSHA1="$(.\bin\ci-info.bat sha1)"
+$headSHA1 = "$(.\bin\ci-info.bat sha1)"
 if ($headSHA1 -eq '') {
     throw
 }
@@ -30,7 +30,7 @@ if ($headSHA1 -ne $expectedHeadSHA1) {
 Write-Host 'passed.'
 
 Write-Host -NoNewline 'Retrieving tag name... '
-$tag="$(.\bin\ci-info.bat tag:name)"
+$tag = "$(.\bin\ci-info.bat tag:name)"
 if ($tag -eq '') {
     throw
 }
