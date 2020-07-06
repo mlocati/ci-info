@@ -51,7 +51,8 @@
     },
     "minimum-stability": "stable",
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit",
+        "phpcs": "php-cs-fixer fix --path-mode=intersection --config=./.php_cs.dist"
     },
     "funding": [
         {
