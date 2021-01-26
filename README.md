@@ -198,3 +198,4 @@ This library is tested against two types of cases:
   - TravisCI:
     - Push tests: [![TravisCI Online Tests for pushes](https://travis-ci.org/mlocati/ci-info.svg?branch=master)](https://travis-ci.org/github/mlocati/ci-info/branches)  
     - Pull request tests: [![TravisCI Online Tests for pull requests](https://travis-ci.org/mlocati/ci-info.svg?branch=master)](https://travis-ci.org/github/mlocati/ci-info/pull_requests)  
+
